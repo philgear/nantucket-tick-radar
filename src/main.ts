@@ -40,6 +40,10 @@ class AppState {
   public globalReadingMode: 'clinical' | 'grade6' = 'clinical';
   public flippedCardIds = new Set<string>();
 
+  public isCardFlipped(id: string): boolean {
+    return this.flippedCardIds.has(id);
+  }
+
   public toggleCardFlip(id: string) {
     if (this.flippedCardIds.has(id)) {
       this.flippedCardIds.delete(id);
@@ -293,66 +297,6 @@ function renderApp() {
     <main>
       ${renderActiveTab()}
     </main>
-
-    <!-- Authoritative Island Directory Footer with Rich Links -->
-    <footer style="margin-top: 48px; padding: 24px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 16px; color: var(--text-muted); font-size: 0.8rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <span style="font-weight: 700; color: var(--text-primary);">
-          Nantucket Island Community Directory & Authoritative Resources:
-        </span>
-        <span class="font-mono" style="color: var(--accent-ocean);">
-          Emergency: 911 • NCH Walk-in: (508) 825-1000
-        </span>
-      </div>
-
-      <!-- Grid of Verified External Links -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 0.75rem;">
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-secondary); text-transform: uppercase;">🏥 Healthcare & Clinics</strong>
-          <a href="https://nantuckethospital.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Cottage Hospital ↗</a>
-          <a href="https://danspharmacynantucket.com/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Dan's Pharmacy (Pleasant St) ↗</a>
-          <a href="https://nantucketpharmacy.com/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Pharmacy (Main St) ↗</a>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-secondary); text-transform: uppercase;">🌲 Conservation & Trails</strong>
-          <a href="https://www.nantucketconservation.org/" target="_blank" rel="noopener noreferrer" style="color: #34d399; text-decoration: none;">&bull; Nantucket Conservation Foundation ↗</a>
-          <a href="https://www.nantucketlandbank.org/" target="_blank" rel="noopener noreferrer" style="color: #34d399; text-decoration: none;">&bull; Nantucket Land Bank Trails ↗</a>
-          <a href="https://www.llnf.org/" target="_blank" rel="noopener noreferrer" style="color: #34d399; text-decoration: none;">&bull; Linda Loring Nature Foundation ↗</a>
-          <a href="https://thetrustees.org/place/coskata-coatue-wildlife-refuge/" target="_blank" rel="noopener noreferrer" style="color: #34d399; text-decoration: none;">&bull; Trustees: Coskata-Coatue Refuge ↗</a>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-secondary); text-transform: uppercase;">🚢 Island Travel & Ferries</strong>
-          <a href="https://www.steamshipauthority.com/" target="_blank" rel="noopener noreferrer" style="color: #fbbf24; text-decoration: none;">&bull; Steamship Authority Ferry ↗</a>
-          <a href="https://hylinecruises.com/" target="_blank" rel="noopener noreferrer" style="color: #fbbf24; text-decoration: none;">&bull; Hy-Line Cruises Fast Ferry ↗</a>
-          <a href="https://nrtawave.com/" target="_blank" rel="noopener noreferrer" style="color: #fbbf24; text-decoration: none;">&bull; NRTA The Wave Island Shuttle ↗</a>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-secondary); text-transform: uppercase;">📚 Island Libraries & Learning</strong>
-          <a href="https://www.nantucketatheneum.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Atheneum Library ↗</a>
-          <a href="https://www.mariamitchell.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Maria Mitchell Association ↗</a>
-          <a href="https://www.nantucket-ma.gov/245/Health-Human-Services" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Board of Health ↗</a>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-secondary); text-transform: uppercase;">🔬 Science & Civic Research</strong>
-          <a href="https://www.media.mit.edu/projects/mice-against-ticks/overview/" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; MIT: Mice Against Ticks Project ↗</a>
-          <a href="https://academic.oup.com/cid/article/72/1/e1/6010652" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; IDSA Lyme Prophylaxis Guidelines ↗</a>
-          <a href="https://www.zooniverse.org/" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; Zooniverse Citizen Science ↗</a>
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 12px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
-        <div>
-          Powered by <span class="font-pocketgull-brand" style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">PocketGull</span> &bull; Open-Source Clinical & Community Intelligence
-        </div>
-        <div style="font-size: 0.75rem; color: #34d399;">
-          🌿 Community Land Stewardship &bull; 📖 Island Libraries & Public Science &bull; 🏡 Family & Grandparent Safety
-        </div>
-      </div>
-    </footer>
   `;
 
   attachEventListeners();
@@ -1866,7 +1810,7 @@ function renderArticlesTab(): string {
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
         ${filteredArticles.map(art => {
-          const isFlipped = state.globalReadingMode === 'grade6' || state.flippedCardIds.has(art.id);
+          const isFlipped = state.isCardFlipped(art.id);
           return `
           <div class="flip-card-container ${isFlipped ? 'flipped' : ''}" data-card-id="${art.id}" title="Double-click card (or tap flip button) to toggle 6th-Grade Mode">
             <div class="flip-card-inner">
@@ -2183,7 +2127,7 @@ function renderSourcesTab(): string {
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
         ${filteredSources.map(src => {
-          const isFlipped = state.globalReadingMode === 'grade6' || state.flippedCardIds.has(src.id);
+          const isFlipped = state.isCardFlipped(src.id);
           return `
           <div class="flip-card-container ${isFlipped ? 'flipped' : ''}" data-card-id="${src.id}" title="Double-click card (or tap flip button) to toggle 6th-Grade Mode">
             <div class="flip-card-inner">
@@ -2756,11 +2700,12 @@ function attachEventListeners() {
     });
   }
 
-  // 3D Double-Click Flip Handlers & Buttons
+  // 3D Double-Click Flip Handlers & Dedicated Flip Buttons
   document.querySelectorAll('.flip-card-container').forEach(card => {
     card.addEventListener('dblclick', (e) => {
-      // Don't trigger if clicked on a direct link
-      if ((e.target as HTMLElement).tagName === 'A' || (e.target as HTMLElement).tagName === 'BUTTON') return;
+      const target = e.target as HTMLElement;
+      // Don't trigger if clicked on an interactive link, button, or form control
+      if (target.closest('a, button, input, select, textarea')) return;
       const cardId = (card as HTMLElement).dataset.cardId;
       if (cardId) {
         state.toggleCardFlip(cardId);
@@ -2771,6 +2716,7 @@ function attachEventListeners() {
 
   document.querySelectorAll('.toggle-flip-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
       const cardId = (e.currentTarget as HTMLElement).dataset.flipTarget;
       if (cardId) {
