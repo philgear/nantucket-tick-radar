@@ -206,10 +206,21 @@ export class NantucketMapEngine {
     this.renderMarineBuoys(L);
     this.syncOverlayVisibility();
 
-    // Invalidate size to ensure clean tile render
-    setTimeout(() => {
-      this.map?.invalidateSize();
-    }, 100);
+    // Multi-stage Invalidate size to ensure clean tile rendering on mobile and desktop
+    [50, 150, 400].forEach(delay => {
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, delay);
+    });
+
+    // Auto-invalidate on window resize
+    window.addEventListener('resize', () => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, { passive: true });
   }
 
   private renderHeatmaps(L: any) {

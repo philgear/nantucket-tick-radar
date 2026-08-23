@@ -310,8 +310,6 @@ function renderApp() {
     </footer>
   `;
 
-  attachEventListeners();
-
   // If active tab is Map, mount the Leaflet Satellite map
   if (state.currentTab === 'map') {
     state.mapEngine.mountMap('nantucketLeafletMap');
@@ -430,7 +428,7 @@ function renderMapTab(): string {
       </div>
 
       <!-- Interactive Leaflet Satellite Map & STAT Hospital Navigation Grid -->
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+      <div class="map-layout-grid">
         <div class="map-canvas-container" style="border: 2px solid rgba(56, 189, 248, 0.3);">
           <div id="nantucketLeafletMap" style="width: 100%; height: 100%;"></div>
         </div>
