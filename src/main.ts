@@ -26,6 +26,7 @@ import { evaluateBayesianTriage } from './engine/bayesian-triage.js';
 import { KAY_HAGAN_TICK_ACT_PILLARS, POWASSAN_VIRUS_PROFILE } from './engine/kay-hagan-act.js';
 import { TourismKioskEngine, KIOSK_STORY_CHAPTERS, IKioskStoryChapter } from './engine/tourism-kiosk.js';
 import { NaturePlayTapeEngine, NATURE_PLAY_TAPE_TRACKS, INaturePlayTapeTrack } from './engine/nature-play-tape.js';
+import { CoppaPrivacyShieldEngine } from './engine/coppa-privacy-shield.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -37,7 +38,9 @@ class AppState {
   // Tourism Kiosk & Nature Play Tape State
   public kioskEngine = new TourismKioskEngine();
   public playTapeEngine = new NaturePlayTapeEngine();
+  public coppaEngine = new CoppaPrivacyShieldEngine();
   public showKioskQrModal = false;
+  public showCoppaModal = false;
   public kioskArmorSocks = true;
   public kioskArmorPicaridin = true;
   public kioskArmorTucked = true;
@@ -263,6 +266,10 @@ function renderApp() {
             <span>${isAudioPlaying ? '🌊 Sound of Moors: Playing' : '🔈 Sound of Moors'}</span>
           </button>
           
+          <button id="openCoppaModalBtn" class="badge badge-emerald font-mono" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981; cursor: pointer; padding: 6px 10px;" title="FTC COPPA & Student Privacy Shield Certification">
+            🔒 COPPA Safe Harbor
+          </button>
+          
           <a href="https://nantuckethospital.org/" target="_blank" rel="noopener noreferrer" class="badge badge-red font-mono" style="text-decoration: none; padding: 6px 10px;" title="Nantucket Cottage Hospital Walk-in">
             🏥 NCH Walk-in ↗
           </a>
@@ -325,6 +332,9 @@ function renderApp() {
 
     <!-- Tourism Kiosk Attract Mode Screensaver Overlay -->
     ${state.kioskEngine.getIsScreensaver() ? renderKioskScreensaverOverlay() : ''}
+
+    <!-- COPPA Parent & Child Privacy Shield Modal -->
+    ${state.showCoppaModal ? state.coppaEngine.renderPrivacyShieldModalHtml() : ''}
   `;
 
   // If active tab is Map, mount the Leaflet Satellite map
@@ -3028,6 +3038,23 @@ function wireDelegatedEvents(): void {
     }
     if (target.closest('#closeKioskQrBtn')) {
       state.showKioskQrModal = false;
+      renderApp();
+      return;
+    }
+
+    // COPPA Privacy Shield Modal
+    if (target.closest('#openCoppaModalBtn')) {
+      state.showCoppaModal = true;
+      renderApp();
+      return;
+    }
+    if (target.closest('#closeCoppaModalBtn') || target.closest('#closeCoppaModalBtn2')) {
+      state.showCoppaModal = false;
+      renderApp();
+      return;
+    }
+    if (target.id === 'coppaModalOverlay') {
+      state.showCoppaModal = false;
       renderApp();
       return;
     }
