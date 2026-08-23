@@ -297,6 +297,11 @@ function renderApp() {
     <main>
       ${renderActiveTab()}
     </main>
+
+    <!-- Minimal Purpose Footer -->
+    <footer style="margin-top: 36px; padding: 16px 8px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.8rem; color: #34d399;">
+      🌿 Community Land Stewardship &bull; 📖 Island Libraries & Public Science &bull; 🏡 Family & Grandparent Safety
+    </footer>
   `;
 
   attachEventListeners();
