@@ -4,6 +4,7 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY package*.json tsconfig.json vite.config.ts index.html ./
+COPY public/ ./public/
 COPY src/ ./src/
 
 RUN npm ci && npm run build
