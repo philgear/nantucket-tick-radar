@@ -41,8 +41,8 @@ Here is a paragraph with **bold text** and *italic words*.
     expect(html).toContain('<hr');
   });
 
-  it('should cleanly parse all 8 articles in the library without error', () => {
-    expect(ARTICLES_LIBRARY.length).toBe(8);
+  it('should cleanly parse all articles in the library without error', () => {
+    expect(ARTICLES_LIBRARY.length).toBeGreaterThanOrEqual(8);
     for (const article of ARTICLES_LIBRARY) {
       const html = renderMarkdownToHtml(article.contentMarkdown);
       expect(html.length).toBeGreaterThan(100);

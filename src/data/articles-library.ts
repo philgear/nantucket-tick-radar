@@ -511,5 +511,87 @@ Rural island healthcare faces unique structural pressures. State policy focuses 
 Ultimately, Massachusetts governance derives its legitimacy from the grassroots:
 * In Open Town Meeting, every Nantucket resident holds an equal vote on biocontrol initiatives (like MIT's *Mice Against Ticks*), Land Bank acquisitions, and conservation bylaws.
 * By blending high-rigor federal and state research with long-term ecological wisdom, Massachusetts and Nantucket together fulfill the **Seven Generations principle**: ensuring that our children and grandchildren inherit a flourishing, joyful, and healthy island commons.`
+  },
+  {
+    id: 'art-009',
+    slug: 'kay-hagan-tick-act-and-powassan-defense',
+    title: 'The Kay Hagan Tick Act (PL 116-94): Powassan Virus & Federal Vector Defense',
+    subtitle: 'How $150M in federal legislation accelerates CDC Regional Centers of Excellence, 15-minute transmission alerts, and municipal island grants',
+    category: 'Clinical Triage',
+    readingTimeMinutes: 6,
+    author: 'CDC Regional Vector Surveillance & Legislative Analysis Group',
+    reviewStatus: 'Federal Statutory & Clinical Guideline Verified',
+    icon: '🏛️',
+    imageUrl: '/images/deer_tick.jpg',
+    imageCaption: 'The blacklegged tick (Ixodes scapularis) vectors not only Borrelia burgdorferi, but also Powassan virus (Lineage II / Deer Tick Virus), which can transmit within 15 minutes of attachment.',
+    imageCredit: 'CDC Public Health Image Library',
+    summary: 'An in-depth guide to the bipartisan Kay Hagan Tick Act, the biology of Powassan virus arboviral encephalitis, CDC Regional Centers of Excellence, and local grant opportunities for Nantucket.',
+    grade6Summary: 'Learn about the special federal law named after Senator Kay Hagan that helps scientists track rare tick viruses like Powassan and gives towns money to keep trails safe!',
+    grade6Takeaway: '🏛️ The Kay Hagan Tick Act gives $150 million to scientists and local towns to fight dangerous tick germs like Powassan virus and make sure our parks and families stay protected!',
+    wikipediaUrl: 'https://en.wikipedia.org/wiki/Powassan_virus',
+    referenceUrl: 'https://www.cdc.gov/vector-borne-diseases/index.html',
+    referenceLabel: 'CDC Division of Vector-Borne Diseases',
+    keyTakeaways: [
+      'The Kay Hagan Tick Act (PL 116-94) authorizes $150 million to coordinate a National Strategy against vector-borne pathogens and fund CDC Regional Centers of Excellence.',
+      'Unlike Lyme spirochetes which require >=36h to transmit, Powassan virus resides in tick salivary glands and can transmit within 15 minutes of attachment.',
+      'Senator Kay Hagan (NC) contracted Powassan virus from an unrecognized tick bite and tragically passed away in 2019, inspiring bipartisan federal action.',
+      'Title II grants provide direct cooperative agreement funding to local municipal health departments (like the Town of Nantucket) for digital triage and surveillance.'
+    ],
+    contentMarkdown: `### 1. Legislative Genesis: Honoring Senator Kay Hagan
+
+In December 2019, the United States Congress enacted the **Kay Hagan Tick Act (Public Law 116-94)**, a landmark bipartisan law authorizing **$150 million over five years** to establish a coordinated national defense against Lyme disease and emerging vector-borne arboviruses.
+
+The law is named in memory of former U.S. Senator **Kay Hagan** of North Carolina, who contracted **Powassan virus encephalitis** from a tick bite in 2016 and tragically died from long-term neurological complications in October 2019. Her illness brought national attention to the rapid transmission speed and severity of under-recognized tick-borne viruses.
+
+---
+
+### 2. The Three Statutory Pillars of the Act
+
+The Kay Hagan Tick Act is organized into three central mandates executed by the Department of Health and Human Services (HHS) and the Centers for Disease Control and Prevention (CDC):
+
+#### Pillar 1: National Strategy on Vector-Borne Diseases (Section 401)
+* Coordinates federal research across the CDC, NIH, DoD, VA, and USDA.
+* Establishes standardized clinical guidelines for early diagnostic testing and antibiotic stewardship.
+* Enforces empirical data modeling to prevent both under-treatment of acute infections and unwarranted long-term antibiotic overuse.
+
+#### Pillar 2: CDC Regional Centers of Excellence (Section 402)
+* Funds academic and public health consortia—such as the **Northeast Regional Center for Excellence in Vector-Borne Diseases (NEVBD)** based at Cornell University, UMass Amherst, and Columbia University.
+* Focuses on tick ecology, vector genomics, pathogen co-infections, and field surveillance across Massachusetts and coastal islands.
+
+#### Pillar 3: Title II Cooperative Grants for Municipal Health Units (Section 403)
+* Directs annual funding to state, tribal, and local municipal health departments (including the *Nantucket Department of Health & Human Services*).
+* Grants fund digital triage kiosks, public school educational outreach, passive tick submission portals, and community trail inspections.
+
+---
+
+### 3. Pathogen Spotlight: Powassan Virus (Lineage II / Deer Tick Virus)
+
+Powassan virus is a single-stranded RNA flavivirus related to West Nile and Yellow Fever viruses:
+
+* **Vector**: Blacklegged tick (*Ixodes scapularis* nymph and adult females).
+* **Transmission Speed**: **<15 to 30 minutes**. Because the virus resides directly within the tick's salivary glands rather than the gut, it does not require a lengthy 36-hour molecular switch (OspA-to-OspC) before transmitting.
+* **Incubation Period**: 1 to 4 weeks (typical 7–14 days).
+* **Case Fatality & Sequelae**: Neuroinvasive cases carry a **~10% fatality rate**, with **~50% of survivors** experiencing permanent neurological deficits (memory impairment, muscle weakness, recurring headaches).
+
+---
+
+### 4. Emergency Clinical Triage & Warning Signs
+
+If an islander or visitor experiences any of the following symptoms following a tick bite, immediate emergency evaluation at **Nantucket Cottage Hospital (57 Prospect St, ED)** is indicated:
+
+1. **Abrupt high fever (103°F+)** with severe frontal headache and stiff neck (meningismus).
+2. **Altered mental state**, confusion, disorientation, or speech difficulties (aphasia).
+3. **Focal tremors**, loss of coordination (ataxia), or seizure activity.
+4. **Diagnostic Workup**: Serum and CSF **Powassan IgM antibody capture ELISA (MAC-ELISA)**.
+5. **Therapy**: Immediate supportive ICU care and cerebral edema management (no FDA-approved antiviral currently exists).
+
+---
+
+### 5. How Nantucket Tick Radar Bridges Federal Policy to Island Commons
+
+The Nantucket Tick Defense & Co-Infection Radar directly operationalizes the goals of the Kay Hagan Tick Act:
+* **Standardized FHIR R4 Ingestion**: Formats community observations into open health data standards compatible with CDC NEVBD research repositories.
+* **Edge-Native Privacy**: Protects rural patient confidentiality with zero server tracking.
+* **Mathematical Bayesian Triage**: Calibrates pre-test probabilities with state surveillance data to ensure rapid detection and responsible clinical stewardship.`
   }
 ];

@@ -21,6 +21,9 @@ import { COASTAL_BUOY_STATIONS, INoaaBuoyStation } from './data/coastal-buoy-dat
 import { NANTUCKET_PUBLIC_MEETING_NOTES, IPublicMeetingNote } from './data/public-meeting-notes.js';
 import { UPCOMING_ISLAND_CIVIC_EVENTS, IIslandCivicEvent } from './data/island-civic-events.js';
 import { renderMarkdownToHtml } from './engine/markdown-renderer.js';
+import { renderFaganNomogramSvg, render100NymphsPopulationGrid } from './engine/fagan-nomogram.js';
+import { evaluateBayesianTriage } from './engine/bayesian-triage.js';
+import { KAY_HAGAN_TICK_ACT_PILLARS, POWASSAN_VIRUS_PROFILE } from './engine/kay-hagan-act.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -917,6 +920,12 @@ function renderRadarTab(): string {
     { ...state.symptoms, attachmentHours: state.attachmentHours }
   );
 
+  const bayesianResults = evaluateBayesianTriage(
+    state.selectedSpecies,
+    { ...state.symptoms, attachmentHours: state.attachmentHours }
+  );
+  const lymeBayes = bayesianResults.find(b => b.pathogenId === 'lyme_borrelia') || bayesianResults[0];
+
   const engorgementStage = getEngorgementStageForHours(state.attachmentHours);
   const hasTimingInconsistency = state.attachmentHours < 6 && (state.symptoms.hasErythemaMigrans || state.symptoms.hasFacialDroop);
 
@@ -1002,6 +1011,28 @@ function renderRadarTab(): string {
             </strong>
           </div>
         </div>
+      </div>
+
+      <!-- 📐 Interactive Bayesian Fagan Nomogram Lens -->
+      ${renderFaganNomogramSvg(lymeBayes)}
+
+      <!-- 🪲 100 Nymphs of Nantucket Population Grid -->
+      ${render100NymphsPopulationGrid()}
+
+      <!-- 🏛️ Kay Hagan Tick Act (PL 116-94) Federal Arbovirus Defense Card -->
+      <div style="background: rgba(9, 9, 11, 0.7); border-left: 4px solid #c084fc; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="max-width: 750px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="badge badge-purple font-mono" style="font-size: 0.75rem;">PUBLIC LAW 116-94</span>
+            <strong style="color: #c084fc; font-size: 0.95rem;">Kay Hagan Tick Act • Powassan Arbovirus Transmission Warning (<15 Min)</strong>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">
+            Unlike Lyme spirochetes which require >=36h to activate salivary migration, <strong>Powassan virus (Flaviviridae)</strong> resides directly in tick salivary glands and can transmit in under 15 minutes. If sudden confusion, high fever (103°F+), or ataxia occur following a bite, seek immediate NCH Emergency Department evaluation.
+          </p>
+        </div>
+        <button class="nav-tab" data-tab="articles" data-art-slug="kay-hagan-tick-act-and-powassan-defense" style="padding: 8px 16px; font-size: 0.8rem; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); border-radius: 8px; color: #c084fc; cursor: pointer; white-space: nowrap;">
+          📖 Read Full Tick Act Guide →
+        </button>
       </div>
 
       <!-- Quick-Select Presets & Interactive Inputs Grid -->
