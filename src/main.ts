@@ -2393,106 +2393,84 @@ function renderHospitalTab(): string {
   `;
 }
 
-// ─── EVENT LISTENERS ──────────────────────────────────────────────────
-function attachEventListeners() {
-  // Navigation Tabs
-  document.querySelectorAll('.nav-tab[data-tab]').forEach(tab => {
-    tab.addEventListener('click', (e) => {
-      const target = (e.currentTarget as HTMLElement).dataset.tab;
-      if (target) {
-        state.currentTab = target;
-        renderApp();
-      }
-    });
-  });
+// ─── DELEGATED EVENT SYSTEM ──────────────────────────────────────────────
+// Single document-level listeners that survive innerHTML re-renders.
+// Bound once at DOMContentLoaded; they use closest() to match ephemeral DOM nodes.
 
-  // Sound of Moors Toggle Button
-  const audioBtn = document.getElementById('toggleMoorsAudioBtn');
-  if (audioBtn) {
-    audioBtn.addEventListener('click', () => {
+let _delegatedEventsWired = false;
+let _flipLastClickTime = 0;
+let _flipLastCardClicked = '';
+
+function wireDelegatedEvents(): void {
+  if (_delegatedEventsWired) return;
+  _delegatedEventsWired = true;
+
+  // ── CLICK delegation ─────────────────────────────────────────────
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Navigation Tabs
+    const navTab = target.closest('.nav-tab[data-tab]') as HTMLElement | null;
+    if (navTab) {
+      const tab = navTab.dataset.tab;
+      if (tab) { state.currentTab = tab; renderApp(); }
+      return;
+    }
+
+    // Sound of Moors Toggle
+    if (target.closest('#toggleMoorsAudioBtn')) {
       state.soundOfMoors.toggleAmbientSound();
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // 60-Second Guided Timer
-  const startTimerBtn = document.getElementById('startTimerBtn');
-  if (startTimerBtn) {
-    startTimerBtn.addEventListener('click', () => {
+    // 60-Second Guided Timer
+    if (target.closest('#startTimerBtn')) {
       state.startGuidedTimer();
-    });
-  }
-  const resetTimerBtn = document.getElementById('resetTimerBtn');
-  if (resetTimerBtn) {
-    resetTimerBtn.addEventListener('click', () => {
+      return;
+    }
+    if (target.closest('#resetTimerBtn')) {
       state.resetGuidedTimer();
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Community Portal: Trailhead QR select & scan simulation
-  const qrSelect = document.getElementById('qrTrailSelect') as HTMLSelectElement;
-  if (qrSelect) {
-    qrSelect.addEventListener('change', (e) => {
-      state.selectedQrTrailId = (e.target as HTMLSelectElement).value;
-      renderApp();
-    });
-  }
-
-  const simulateQrBtn = document.getElementById('simulateQrScanBtn');
-  if (simulateQrBtn) {
-    simulateQrBtn.addEventListener('click', () => {
+    // Simulate QR Scan
+    if (target.closest('#simulateQrScanBtn')) {
       state.selectedTrailId = state.selectedQrTrailId;
       state.currentTab = 'radar';
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Community Portal: SMS text sender
-  const smsInput = document.getElementById('smsInput') as HTMLInputElement;
-  if (smsInput) {
-    smsInput.addEventListener('input', (e) => {
-      state.smsInputText = (e.target as HTMLInputElement).value;
-    });
-  }
-
-  const sendSmsBtn = document.getElementById('sendSmsBtn');
-  if (sendSmsBtn) {
-    sendSmsBtn.addEventListener('click', () => {
+    // SMS Send
+    if (target.closest('#sendSmsBtn')) {
       if (state.smsInputText.trim()) {
         state.communityStore.parseSmsText(state.smsInputText.trim());
         state.smsInputText = '';
         renderApp();
       }
-    });
-  }
+      return;
+    }
 
-  // Community Portal: Pharmacy Ticker Increment
-  document.querySelectorAll('.pharmacy-increment-btn[data-pharmacy]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const facility = (e.currentTarget as HTMLElement).dataset.pharmacy as 'dans' | 'nantucket' | 'nch';
-      if (facility) {
-        state.communityStore.incrementPharmacyDoxy(facility);
-        renderApp();
-      }
-    });
-  });
+    // Pharmacy Increment
+    const pharmacyBtn = target.closest('.pharmacy-increment-btn[data-pharmacy]') as HTMLElement | null;
+    if (pharmacyBtn) {
+      const facility = pharmacyBtn.dataset.pharmacy as 'dans' | 'nantucket' | 'nch';
+      if (facility) { state.communityStore.incrementPharmacyDoxy(facility); renderApp(); }
+      return;
+    }
 
-  // Community Portal: Mark Barberry Cleared
-  document.querySelectorAll('.mark-barberry-cleared-btn[data-barb-id]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = (e.currentTarget as HTMLElement).dataset.barbId;
-      if (id) {
-        state.communityStore.updateBarberryStatus(id, 'Cleared & Restored');
-        renderApp();
-      }
-    });
-  });
+    // Barberry Cleared
+    const barbBtn = target.closest('.mark-barberry-cleared-btn[data-barb-id]') as HTMLElement | null;
+    if (barbBtn) {
+      const id = barbBtn.dataset.barbId;
+      if (id) { state.communityStore.updateBarberryStatus(id, 'Cleared & Restored'); renderApp(); }
+      return;
+    }
 
-  // Community Portal: Download CSV Export
-  const downloadCsvBtn = document.getElementById('downloadCsvExportBtn');
-  if (downloadCsvBtn) {
-    downloadCsvBtn.addEventListener('click', () => {
+    // Download CSV Export
+    if (target.closest('#downloadCsvExportBtn')) {
       const csvContent = state.communityStore.generateTownCouncilCsvExport();
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -2502,68 +2480,53 @@ function attachEventListeners() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    });
-  }
+      return;
+    }
 
-  // Civic Event Category Filters
-  document.querySelectorAll('button[data-event-cat]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const cat = (e.currentTarget as HTMLElement).dataset.eventCat;
-      if (cat) {
-        state.selectedCivicEventCategory = cat;
-        renderApp();
-      }
-    });
-  });
+    // Civic Event Category Filters
+    const eventCatBtn = target.closest('button[data-event-cat]') as HTMLElement | null;
+    if (eventCatBtn) {
+      const cat = eventCatBtn.dataset.eventCat;
+      if (cat) { state.selectedCivicEventCategory = cat; renderApp(); }
+      return;
+    }
 
-  // Meeting Notes Category Filters
-  document.querySelectorAll('button[data-meeting-cat]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const cat = (e.currentTarget as HTMLElement).dataset.meetingCat;
-      if (cat) {
-        state.selectedMeetingCategory = cat;
-        renderApp();
-      }
-    });
-  });
+    // Meeting Notes Category Filters
+    const meetingCatBtn = target.closest('button[data-meeting-cat]') as HTMLElement | null;
+    if (meetingCatBtn) {
+      const cat = meetingCatBtn.dataset.meetingCat;
+      if (cat) { state.selectedMeetingCategory = cat; renderApp(); }
+      return;
+    }
 
-  // Body View Toggle (Front vs Back)
-  document.querySelectorAll('button[data-body-view]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const view = (e.currentTarget as HTMLElement).dataset.bodyView as 'front' | 'back';
-      if (view) {
-        state.bodyView = view;
-        renderApp();
-      }
-    });
-  });
+    // Body View Toggle
+    const bodyViewBtn = target.closest('button[data-body-view]') as HTMLElement | null;
+    if (bodyViewBtn) {
+      const view = bodyViewBtn.dataset.bodyView as 'front' | 'back';
+      if (view) { state.bodyView = view; renderApp(); }
+      return;
+    }
 
-  // Body Hotspot Beacons in SVG
-  document.querySelectorAll('.hotspot-beacon[data-zone-id]').forEach(beacon => {
-    beacon.addEventListener('click', (e) => {
-      const zoneId = (e.currentTarget as HTMLElement).dataset.zoneId;
-      if (zoneId) {
-        state.selectedBodyZoneId = zoneId;
-        renderApp();
-      }
-    });
-  });
+    // Body Hotspot Beacons
+    const hotspot = target.closest('.hotspot-beacon[data-zone-id]') as HTMLElement | null;
+    if (hotspot) {
+      const zoneId = hotspot.dataset.zoneId;
+      if (zoneId) { state.selectedBodyZoneId = zoneId; renderApp(); }
+      return;
+    }
 
-  // Body Zone Select Pills
-  document.querySelectorAll('button[data-zone-select]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const zoneId = (e.currentTarget as HTMLElement).dataset.zoneSelect;
-      if (zoneId) {
-        state.selectedBodyZoneId = zoneId;
-        renderApp();
-      }
-    });
-  });
+    // Body Zone Select Pills
+    const zoneSelect = target.closest('button[data-zone-select]') as HTMLElement | null;
+    if (zoneSelect) {
+      const zoneId = zoneSelect.dataset.zoneSelect;
+      if (zoneId) { state.selectedBodyZoneId = zoneId; renderApp(); }
+      return;
+    }
 
-  // Weather Preset Buttons
-  document.querySelectorAll('button[data-weather-preset]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const presetId = (e.currentTarget as HTMLElement).dataset.weatherPreset;
+    // Weather Preset Buttons
+    const weatherBtn = target.closest('button[data-weather-preset]') as HTMLElement | null;
+    if (weatherBtn) {
+      const presetId = weatherBtn.dataset.weatherPreset;
       const preset = ISLAND_WEATHER_PRESETS.find(p => p.id === presetId);
       if (preset) {
         state.weatherTempF = preset.tempF;
@@ -2571,13 +2534,13 @@ function attachEventListeners() {
         state.weatherWindKnots = preset.windSpeedKnots;
         renderApp();
       }
-    });
-  });
+      return;
+    }
 
-  // Coastal Buoy Live Telemetry Sync Buttons
-  document.querySelectorAll('button[data-apply-buoy]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const buoyId = (e.currentTarget as HTMLElement).dataset.applyBuoy;
+    // Coastal Buoy Sync Buttons
+    const buoyBtn = target.closest('button[data-apply-buoy]') as HTMLElement | null;
+    if (buoyBtn) {
+      const buoyId = buoyBtn.dataset.applyBuoy;
       const buoy = COASTAL_BUOY_STATIONS.find(b => b.id === buoyId);
       if (buoy) {
         state.weatherTempF = Math.round(buoy.airTempF);
@@ -2585,89 +2548,56 @@ function attachEventListeners() {
         state.weatherWindKnots = Math.round(buoy.windSpeedKnots);
         renderApp();
       }
-    });
-  });
+      return;
+    }
 
-  // Weather Sliders
-  const tempSlider = document.getElementById('tempSlider') as HTMLInputElement;
-  if (tempSlider) {
-    tempSlider.addEventListener('input', (e) => {
-      state.weatherTempF = parseInt((e.target as HTMLInputElement).value, 10);
-      renderApp();
-    });
-  }
-  const humiditySlider = document.getElementById('humiditySlider') as HTMLInputElement;
-  if (humiditySlider) {
-    humiditySlider.addEventListener('input', (e) => {
-      state.weatherHumidity = parseInt((e.target as HTMLInputElement).value, 10);
-      renderApp();
-    });
-  }
-  const windSlider = document.getElementById('windSlider') as HTMLInputElement;
-  if (windSlider) {
-    windSlider.addEventListener('input', (e) => {
-      state.weatherWindKnots = parseInt((e.target as HTMLInputElement).value, 10);
-      renderApp();
-    });
-  }
+    // Ferry Kit Item Toggles
+    const kitItem = target.closest('.ferry-kit-item[data-kit-id]') as HTMLElement | null;
+    if (kitItem) {
+      const kitId = kitItem.dataset.kitId;
+      if (kitId) { state.ferryKitStore.toggleItem(kitId); renderApp(); }
+      return;
+    }
 
-  // Ferry Kit Item Toggles
-  document.querySelectorAll('.ferry-kit-item[data-kit-id]').forEach(item => {
-    item.addEventListener('click', (e) => {
-      const kitId = (e.currentTarget as HTMLElement).dataset.kitId;
-      if (kitId) {
-        state.ferryKitStore.toggleItem(kitId);
-        renderApp();
-      }
-    });
-  });
-
-  const resetFerryKitBtn = document.getElementById('resetFerryKitBtn');
-  if (resetFerryKitBtn) {
-    resetFerryKitBtn.addEventListener('click', () => {
+    // Reset Ferry Kit
+    if (target.closest('#resetFerryKitBtn')) {
       state.ferryKitStore.resetToDefaults();
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Basemap Switcher
-  document.querySelectorAll('button[data-basemap]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const mode = (e.currentTarget as HTMLElement).dataset.basemap as BasemapMode;
-      if (mode) {
-        state.mapEngine.setBasemap(mode);
-        renderApp();
-      }
-    });
-  });
+    // Basemap Switcher
+    const basemapBtn = target.closest('button[data-basemap]') as HTMLElement | null;
+    if (basemapBtn) {
+      const mode = basemapBtn.dataset.basemap as BasemapMode;
+      if (mode) { state.mapEngine.setBasemap(mode); renderApp(); }
+      return;
+    }
 
-  // Quick Zoom Preset Buttons
-  document.querySelectorAll('button[data-zoom-preset]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const preset = (e.currentTarget as HTMLElement).dataset.zoomPreset as any;
-      if (preset) {
-        state.mapEngine.flyToPreset(preset);
-        renderApp();
-      }
-    });
-  });
+    // Quick Zoom Presets
+    const zoomBtn = target.closest('button[data-zoom-preset]') as HTMLElement | null;
+    if (zoomBtn) {
+      const preset = zoomBtn.dataset.zoomPreset as any;
+      if (preset) { state.mapEngine.flyToPreset(preset); renderApp(); }
+      return;
+    }
 
-  // Map Layer Toggles
-  document.querySelectorAll('.map-layer-btn[data-layer]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const layer = (e.currentTarget as HTMLElement).dataset.layer as any;
+    // Map Layer Toggles
+    const layerBtn = target.closest('.map-layer-btn[data-layer]') as HTMLElement | null;
+    if (layerBtn) {
+      const layer = layerBtn.dataset.layer as any;
       if (layer) {
         const currentVal = (state.mapEngine.getLayers() as any)[layer];
         state.mapEngine.setLayer(layer, !currentVal);
         renderApp();
       }
-    });
-  });
+      return;
+    }
 
-  // Route Selection
-  document.querySelectorAll('.route-select-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      const routeId = (e.currentTarget as HTMLElement).dataset.routeId;
+    // Route Selection
+    const routeCard = target.closest('.route-select-card') as HTMLElement | null;
+    if (routeCard) {
+      const routeId = routeCard.dataset.routeId;
       if (routeId) {
         state.mapEngine.setActiveRoute(routeId);
         const route = state.mapEngine.getActiveRoute();
@@ -2676,166 +2606,100 @@ function attachEventListeners() {
         }
         renderApp();
       }
-    });
-  });
+      return;
+    }
 
-  // Reset Triage
-  const resetBtn = document.getElementById('quickResetBtn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
+    // Reset Triage
+    if (target.closest('#quickResetBtn')) {
       state.resetTriage();
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Presets
-  document.querySelectorAll('button[data-preset]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const preset = (e.currentTarget as HTMLElement).dataset.preset as any;
-      if (preset) {
-        state.applyPreset(preset);
-        renderApp();
-      }
-    });
-  });
+    // Presets
+    const presetBtn = target.closest('button[data-preset]') as HTMLElement | null;
+    if (presetBtn) {
+      const preset = presetBtn.dataset.preset as any;
+      if (preset) { state.applyPreset(preset); renderApp(); }
+      return;
+    }
 
-  // Repellent Active Ingredient Selector
-  document.querySelectorAll('.repellent-select-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const repId = (e.currentTarget as HTMLElement).dataset.repId;
-      if (repId) {
-        state.selectedRepellentId = repId;
-        renderApp();
-      }
-    });
-  });
+    // Repellent Selector
+    const repBtn = target.closest('.repellent-select-btn') as HTMLElement | null;
+    if (repBtn) {
+      const repId = repBtn.dataset.repId;
+      if (repId) { state.selectedRepellentId = repId; renderApp(); }
+      return;
+    }
 
-  // Article Search & Categories
-  document.querySelectorAll('button[data-art-cat]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const cat = (e.currentTarget as HTMLElement).dataset.artCat;
-      if (cat) {
-        state.selectedArticleCategory = cat;
-        renderApp();
-      }
-    });
-  });
+    // Article Category Filters
+    const artCatBtn = target.closest('button[data-art-cat]') as HTMLElement | null;
+    if (artCatBtn) {
+      const cat = artCatBtn.dataset.artCat;
+      if (cat) { state.selectedArticleCategory = cat; renderApp(); }
+      return;
+    }
 
-  const searchInput = document.getElementById('articleSearchInput') as HTMLInputElement;
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      state.articleSearchQuery = (e.target as HTMLInputElement).value;
-      renderApp();
-      const updatedInput = document.getElementById('articleSearchInput') as HTMLInputElement;
-      if (updatedInput) {
-        updatedInput.focus();
-        updatedInput.setSelectionRange(updatedInput.value.length, updatedInput.value.length);
-      }
-    });
-  }
-
-  document.querySelectorAll('.read-article-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const artId = (e.currentTarget as HTMLElement).dataset.artId;
+    // Read Article Button
+    const readBtn = target.closest('.read-article-btn') as HTMLElement | null;
+    if (readBtn) {
+      const artId = readBtn.dataset.artId;
       if (artId) {
         state.activeArticleId = artId;
         renderApp();
         window.scrollTo({ top: 120, behavior: 'smooth' });
       }
-    });
-  });
+      return;
+    }
 
-  const closeArtBtn = document.getElementById('closeArticleBtn');
-  if (closeArtBtn) {
-    closeArtBtn.addEventListener('click', () => {
+    // Close Article Reader
+    if (target.closest('#closeArticleBtn')) {
       state.activeArticleId = null;
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Attachment Slider
-  const attachmentSlider = document.getElementById('attachmentSlider') as HTMLInputElement;
-  if (attachmentSlider) {
-    attachmentSlider.addEventListener('input', (e) => {
-      state.attachmentHours = parseInt((e.target as HTMLInputElement).value, 10);
-      renderApp();
-    });
-  }
-  const removalSlider = document.getElementById('removalSlider') as HTMLInputElement;
-  if (removalSlider) {
-    removalSlider.addEventListener('input', (e) => {
-      state.hoursSinceRemoval = parseInt((e.target as HTMLInputElement).value, 10);
-      renderApp();
-    });
-  }
+    // Source Category Filters
+    const srcCatBtn = target.closest('button[data-src-cat]') as HTMLElement | null;
+    if (srcCatBtn) {
+      const cat = srcCatBtn.dataset.srcCat;
+      if (cat) { state.selectedSourceCategory = cat; renderApp(); }
+      return;
+    }
 
-  // Species Radio
-  document.querySelectorAll('input[name="species"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      state.selectedSpecies = (e.target as HTMLInputElement).value as TickSpecies;
-      renderApp();
-    });
-  });
-
-  // Symptoms
-  document.querySelectorAll('input[data-symptom]').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const target = e.target as HTMLInputElement;
-      const key = target.dataset.symptom as keyof ISymptomInput;
-      if (key) {
-        (state.symptoms as any)[key] = target.checked;
-        renderApp();
-      }
-    });
-  });
-  // Scientific Sources Search & Categories
-  document.querySelectorAll('button[data-src-cat]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const cat = (e.currentTarget as HTMLElement).dataset.srcCat;
-      if (cat) {
-        state.selectedSourceCategory = cat;
-        renderApp();
-      }
-    });
-  });
-
-  const sourceSearchInput = document.getElementById('sourceSearchInput') as HTMLInputElement;
-  if (sourceSearchInput) {
-    sourceSearchInput.addEventListener('input', (e) => {
-      state.sourceSearchQuery = (e.target as HTMLInputElement).value;
-      renderApp();
-      const updatedInput = document.getElementById('sourceSearchInput') as HTMLInputElement;
-      if (updatedInput) {
-        updatedInput.focus();
-        updatedInput.setSelectionRange(updatedInput.value.length, updatedInput.value.length);
-      }
-    });
-  }
-
-  // Global Reading Mode Toggle Button
-  const toggleReadingModeBtn = document.getElementById('toggleReadingModeBtn');
-  if (toggleReadingModeBtn) {
-    toggleReadingModeBtn.addEventListener('click', () => {
+    // Global Reading Mode Toggle
+    if (target.closest('#toggleReadingModeBtn')) {
       state.toggleGlobalReadingMode();
       renderApp();
-    });
-  }
+      return;
+    }
 
-  // Bulletproof Card Flip Handlers (Smart Click + Native DblClick + Direct Buttons)
-  let lastClickTime = 0;
-  let lastCardClicked = '';
+    // ── FLIP CARD HANDLERS (Click-based) ─────────────────────────────
+    // 1. Direct flip button click (highest priority)
+    const flipBtn = target.closest('.toggle-flip-btn, .flip-hint-badge') as HTMLElement | null;
+    if (flipBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const cardId = flipBtn.dataset.flipTarget
+        || (flipBtn.closest('.flip-card-container') as HTMLElement | null)?.dataset.cardId;
+      if (cardId) {
+        state.toggleCardFlip(cardId);
+        renderApp();
+      }
+      return;
+    }
 
-  document.querySelectorAll('.flip-card-container').forEach(card => {
-    // Smart click listener with 450ms double-click tolerance for trackpads & mice
-    card.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
+    // 2. Click anywhere on a flip-card-container (rapid double-click tolerance)
+    const flipCard = target.closest('.flip-card-container') as HTMLElement | null;
+    if (flipCard) {
+      // Skip interactive child elements
       if (target.closest('a, input, select, textarea, .read-article-btn')) return;
-      
-      const cardId = (card as HTMLElement).dataset.cardId;
+
+      const cardId = flipCard.dataset.cardId;
       if (!cardId) return;
 
-      // 1. Direct single-click on any flip button or badge
-      if (target.closest('.toggle-flip-btn, .flip-hint-badge, .flip-header-bar')) {
+      // Flip header bar click
+      if (target.closest('.flip-header-bar')) {
         e.preventDefault();
         e.stopPropagation();
         state.toggleCardFlip(cardId);
@@ -2843,41 +2707,131 @@ function attachEventListeners() {
         return;
       }
 
-      // 2. Trackpad / Mouse rapid double-click tolerance (within 450ms)
+      // Trackpad / Mouse rapid double-click tolerance (within 450ms)
       const now = Date.now();
-      if (lastCardClicked === cardId && (now - lastClickTime) < 450) {
+      if (_flipLastCardClicked === cardId && (now - _flipLastClickTime) < 450) {
         state.toggleCardFlip(cardId);
         renderApp();
-        lastClickTime = 0;
-        lastCardClicked = '';
+        _flipLastClickTime = 0;
+        _flipLastCardClicked = '';
       } else {
-        lastClickTime = now;
-        lastCardClicked = cardId;
+        _flipLastClickTime = now;
+        _flipLastCardClicked = cardId;
       }
-    });
-
-    // 3. Native browser dblclick event
-    card.addEventListener('dblclick', (e) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('a, input, select, textarea, .read-article-btn')) return;
-      const cardId = (card as HTMLElement).dataset.cardId;
-      if (cardId) {
-        state.toggleCardFlip(cardId);
-        renderApp();
-      }
-    });
+      return;
+    }
   });
 
-  document.querySelectorAll('.toggle-flip-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const cardId = (e.currentTarget as HTMLElement).dataset.flipTarget;
+  // ── DBLCLICK delegation (native browser double-click) ────────────
+  document.addEventListener('dblclick', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('a, input, select, textarea, .read-article-btn')) return;
+
+    const flipCard = target.closest('.flip-card-container') as HTMLElement | null;
+    if (flipCard) {
+      const cardId = flipCard.dataset.cardId;
       if (cardId) {
         state.toggleCardFlip(cardId);
         renderApp();
       }
-    });
+    }
+  });
+
+  // ── INPUT delegation (sliders, search boxes, SMS) ────────────────
+  document.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (!target) return;
+
+    const id = target.id;
+
+    // Weather sliders
+    if (id === 'tempSlider') {
+      state.weatherTempF = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
+    if (id === 'humiditySlider') {
+      state.weatherHumidity = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
+    if (id === 'windSlider') {
+      state.weatherWindKnots = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
+
+    // Attachment & Removal sliders
+    if (id === 'attachmentSlider') {
+      state.attachmentHours = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
+    if (id === 'removalSlider') {
+      state.hoursSinceRemoval = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
+
+    // Article Search Input
+    if (id === 'articleSearchInput') {
+      state.articleSearchQuery = target.value;
+      renderApp();
+      const updatedInput = document.getElementById('articleSearchInput') as HTMLInputElement;
+      if (updatedInput) {
+        updatedInput.focus();
+        updatedInput.setSelectionRange(updatedInput.value.length, updatedInput.value.length);
+      }
+      return;
+    }
+
+    // Source Search Input
+    if (id === 'sourceSearchInput') {
+      state.sourceSearchQuery = target.value;
+      renderApp();
+      const updatedInput = document.getElementById('sourceSearchInput') as HTMLInputElement;
+      if (updatedInput) {
+        updatedInput.focus();
+        updatedInput.setSelectionRange(updatedInput.value.length, updatedInput.value.length);
+      }
+      return;
+    }
+
+    // SMS Input (no re-render, just update state)
+    if (id === 'smsInput') {
+      state.smsInputText = target.value;
+      return;
+    }
+  });
+
+  // ── CHANGE delegation (select dropdowns, radio buttons, checkboxes) ──
+  document.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (!target) return;
+
+    // QR Trail Select
+    if (target.id === 'qrTrailSelect') {
+      state.selectedQrTrailId = target.value;
+      renderApp();
+      return;
+    }
+
+    // Species Radio
+    if (target.name === 'species') {
+      state.selectedSpecies = target.value as TickSpecies;
+      renderApp();
+      return;
+    }
+
+    // Symptom Checkboxes
+    if (target.dataset.symptom) {
+      const key = target.dataset.symptom as keyof ISymptomInput;
+      if (key) {
+        (state.symptoms as any)[key] = target.checked;
+        renderApp();
+      }
+      return;
+    }
   });
 }
 
@@ -2929,5 +2883,6 @@ document.addEventListener('keydown', (e) => {
 
 // Initial Mount
 document.addEventListener('DOMContentLoaded', () => {
+  wireDelegatedEvents();
   renderApp();
 });
