@@ -92,8 +92,8 @@ export const UPCOMING_ISLAND_CIVIC_EVENTS: IIslandCivicEvent[] = [
     time: '5:30 PM – 7:30 PM',
     location: 'Nantucket High School Cafeteria & Gym (10 Surfside Rd)',
     category: 'Citizen Science',
-    description: 'Public exhibition of 6th-grade student science posters, Zooniverse classification findings, habitat maps, and creative letters written to island leaders proposing ecological safety improvements for island trails.',
-    familyAndGrandparentBenefit: 'Celebrate island children’s research achievements and see how local youth are leading the science of tick defense.',
+    description: 'Public exhibition of 6th-grade student science posters, Zooniverse wildlife classifications, botanical habitat maps, and Junior Ranger field discovery journals.',
+    familyAndGrandparentBenefit: 'Celebrate island children’s research achievements and see how local youth are participating in safe, COPPA-compliant nature discovery.',
     librarianTip: 'Student posters will be displayed in the Atheneum Weezie Library for Children throughout November.',
     isFreeEvent: true,
     rsvpOrContact: 'Nantucket Public Schools: (508) 228-7285'

@@ -24,6 +24,8 @@ import { renderMarkdownToHtml } from './engine/markdown-renderer.js';
 import { renderFaganNomogramSvg, render100NymphsPopulationGrid } from './engine/fagan-nomogram.js';
 import { evaluateBayesianTriage } from './engine/bayesian-triage.js';
 import { KAY_HAGAN_TICK_ACT_PILLARS, POWASSAN_VIRUS_PROFILE } from './engine/kay-hagan-act.js';
+import { TourismKioskEngine, KIOSK_STORY_CHAPTERS, IKioskStoryChapter } from './engine/tourism-kiosk.js';
+import { NaturePlayTapeEngine, NATURE_PLAY_TAPE_TRACKS, INaturePlayTapeTrack } from './engine/nature-play-tape.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -32,6 +34,15 @@ class AppState {
   public selectedPhase: EisenhowerPhase | 'all' = 'all';
   public selectedSpecies: TickSpecies = 'ixodes_nymph';
   
+  // Tourism Kiosk & Nature Play Tape State
+  public kioskEngine = new TourismKioskEngine();
+  public playTapeEngine = new NaturePlayTapeEngine();
+  public showKioskQrModal = false;
+  public kioskArmorSocks = true;
+  public kioskArmorPicaridin = true;
+  public kioskArmorTucked = true;
+  public kioskClockHours = 12;
+
   // Sources & Science state
   public selectedSourceCategory: string = 'all';
   public sourceSearchQuery: string = '';
@@ -295,6 +306,9 @@ function renderApp() {
           <button role="tab" aria-selected="${state.currentTab === 'hospital' ? 'true' : 'false'}" class="nav-tab ${state.currentTab === 'hospital' ? 'active' : ''}" data-tab="hospital" title="Press H">
             <span>🏥 NCH Intake</span><span class="kbd-shortcut">H</span>
           </button>
+          <button role="tab" aria-selected="${state.currentTab === 'kiosk' ? 'true' : 'false'}" class="nav-tab ${state.currentTab === 'kiosk' ? 'active' : ''}" data-tab="kiosk" title="Press K" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+            <span>🖥️ Ferry Kiosk</span><span class="kbd-shortcut">K</span>
+          </button>
         </nav>
       </div>
     </header>
@@ -308,6 +322,9 @@ function renderApp() {
     <footer style="margin-top: 36px; padding: 16px 8px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.8rem; color: #34d399;">
       🌿 Community Land Stewardship &bull; 📖 Island Libraries & Public Science &bull; 🏡 Family & Grandparent Safety
     </footer>
+
+    <!-- Tourism Kiosk Attract Mode Screensaver Overlay -->
+    ${state.kioskEngine.getIsScreensaver() ? renderKioskScreensaverOverlay() : ''}
   `;
 
   // If active tab is Map, mount the Leaflet Satellite map
@@ -342,6 +359,8 @@ function renderActiveTab(): string {
       return renderSourcesTab();
     case 'hospital':
       return renderHospitalTab();
+    case 'kiosk':
+      return renderKioskTab();
     default:
       return renderMapTab();
   }
@@ -2422,6 +2441,534 @@ function renderHospitalTab(): string {
   `;
 }
 
+// ─── TAB 13: TOURISM & VISITOR CENTER KIOSK (STORYTELLING & ANIMATIONS) ───
+function renderKioskTab(): string {
+  const chapter = state.kioskEngine.getActiveChapter();
+  const allChapters = state.kioskEngine.getAllChapters();
+  const chapterIdx = state.kioskEngine.getChapterIndex();
+
+  return `
+    <div style="display: flex; flex-direction: column; gap: 24px; animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      
+      <!-- Kiosk Header / Attract Banner -->
+      <div class="glass-card" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-left: 6px solid ${chapter.themeColor}; background: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="badge font-mono" style="background: rgba(56, 189, 248, 0.15); color: ${chapter.themeColor}; border: 1px solid ${chapter.themeColor};">
+              FERRY TERMINAL &amp; VISITOR CENTER KIOSK
+            </span>
+            <span class="badge badge-emerald font-mono">TOUCHSCREEN STORYTELLING</span>
+          </div>
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin: 4px 0;">
+            Nantucket Trail Safety &amp; Moorland Storytelling
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            Explore the 6 interactive chapters below or send this guide directly to your phone.
+          </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="kioskScreensaverBtn" class="btn-secondary" style="min-height: 48px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+            🖥️ Start Attract Screensaver
+          </button>
+          <button id="kioskQrBtn" class="btn-primary" style="min-height: 48px; background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+            📱 Send to My Phone
+          </button>
+        </div>
+      </div>
+
+      <!-- 6-Chapter Interactive Stepper Bar -->
+      <div class="kiosk-chapter-stepper" role="tablist" aria-label="Kiosk Story Chapters">
+        ${allChapters.map((c, i) => `
+          <button class="kiosk-chapter-pill ${i === chapterIdx ? 'active' : ''}" data-kiosk-chapter="${i}" style="${i === chapterIdx ? `border-color: ${c.themeColor}; color: ${c.themeColor};` : ''}">
+            <span style="font-size: 1.3rem;">${c.icon}</span>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Chapter ${c.chapterNumber}</span>
+              <span style="font-weight: 700; white-space: nowrap;">${c.title}</span>
+            </div>
+          </button>
+        `).join('')}
+      </div>
+
+      <!-- Active Chapter Storytelling Hero Card -->
+      <div class="kiosk-hero-card" style="border-top: 4px solid ${chapter.themeColor};">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <span class="badge font-mono" style="background: rgba(14, 165, 233, 0.15); color: ${chapter.themeColor}; border: 1px solid ${chapter.themeColor};">
+              ${chapter.badge}
+            </span>
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 8px; margin-bottom: 4px;">
+              ${chapter.icon} ${chapter.headline}
+            </h3>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+              ${chapter.subtitle}
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button id="kioskPrevBtn" class="btn-secondary" style="min-height: 48px; padding: 8px 18px;" title="Previous Chapter">
+              ⬅️ Previous
+            </button>
+            <button id="kioskNextBtn" class="btn-primary" style="min-height: 48px; padding: 8px 22px; background: linear-gradient(135deg, ${chapter.themeColor}, #0284c7);" title="Next Chapter">
+              Next Chapter ➔
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 24px;">
+          ${chapter.storyParagraphs.map(p => `<p style="margin: 0;">${p.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--text-primary);">$1</strong>')}</p>`).join('')}
+        </div>
+
+        <!-- Interactive Animated Chapter Widget -->
+        ${renderKioskInteractiveWidget(chapter)}
+
+        <!-- Family Action Step Takeaway -->
+        <div style="margin-top: 24px; background: rgba(16, 185, 129, 0.12); border: 2px solid #10b981; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <span style="font-size: 2rem;">💡</span>
+          <div style="flex: 1;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em;">
+              Family &amp; Visitor Action Step
+            </div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #f0fdf4; margin-top: 2px;">
+              ${chapter.familyActionStep}
+            </div>
+          </div>
+          <button id="kioskQrTakeawayBtn" class="btn-secondary" style="min-height: 44px; font-size: 0.8rem; border-color: #34d399; color: #34d399;">
+            📱 Save to Phone
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Island Visitor Stats Bar -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <div class="glass-card" style="padding: 16px; text-align: center; border-left: 3px solid #38bdf8;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Nantucket Hospital Location</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; margin-top: 4px;">57 Prospect Street</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">Open 7 Days • Walk-In Clinic</div>
+        </div>
+        <div class="glass-card" style="padding: 16px; text-align: center; border-left: 3px solid #34d399;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Island Safe Prophylaxis Window</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #34d399; margin-top: 4px;">36h – 72h Window</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">Single-Dose Doxycycline 200mg</div>
+        </div>
+        <div class="glass-card" style="padding: 16px; text-align: center; border-left: 3px solid #fbbf24;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Nightly Bedtime Routine</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #fbbf24; margin-top: 4px;">3-Minute Body Check</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">Behind knees, hairline &amp; waist</div>
+        </div>
+      </div>
+
+      <!-- 📼 Nantucket Junior Ranger "Nature Play Tape" Cassette Deck -->
+      ${renderNaturePlayTapeDeck()}
+
+      <!-- QR Code Mobile Handoff Modal -->
+      ${state.showKioskQrModal ? renderKioskQrModal(chapter) : ''}
+    </div>
+  `;
+}
+
+function renderKioskInteractiveWidget(chapter: IKioskStoryChapter): string {
+  switch (chapter.interactiveWidgetType) {
+    case 'armor_physics': {
+      let protectionPct = 0;
+      if (state.kioskArmorSocks) protectionPct += 73.6;
+      if (state.kioskArmorPicaridin) protectionPct += 21.2;
+      if (state.kioskArmorTucked) protectionPct += 4.6;
+      protectionPct = Math.min(99.4, protectionPct);
+
+      return `
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">
+              🛡️ Interactive Trail Armor Simulator
+            </span>
+            <span class="badge ${protectionPct >= 90 ? 'badge-emerald' : 'badge-amber'} font-mono">
+              TOTAL PROTECTION: ${protectionPct.toFixed(1)}%
+            </span>
+          </div>
+
+          <div class="kiosk-armor-hiker">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+              <span style="font-size: 3.5rem;">🥾</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: ${state.kioskArmorSocks ? '#34d399' : '#f87171'};">
+                ${state.kioskArmorSocks ? '✅ Permethrin Shield' : '❌ Unprotected'}
+              </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+              <div class="kiosk-animated-tick" style="${!state.kioskArmorSocks ? 'animation: none; transform: translateX(0);' : ''}">
+                🪲
+              </div>
+              <span style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-top: 4px;">
+                ${state.kioskArmorSocks ? '⚡ "Hot-Foot" Repelled!' : '⚠️ Questing Tick Steps On'}
+              </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+              <span style="font-size: 3.5rem;">🧴</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: ${state.kioskArmorPicaridin ? '#34d399' : '#f87171'};">
+                ${state.kioskArmorPicaridin ? '✅ 20% Picaridin' : '❌ No Repellent'}
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+            <button id="toggleKioskSocksBtn" class="kiosk-big-btn" style="flex: 1; background: ${state.kioskArmorSocks ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; border: 1px solid ${state.kioskArmorSocks ? '#10b981' : '#ef4444'}; color: ${state.kioskArmorSocks ? '#34d399' : '#f87171'};">
+              🧦 Permethrin Socks: ${state.kioskArmorSocks ? 'ON (+73.6%)' : 'OFF'}
+            </button>
+            <button id="toggleKioskPicaridinBtn" class="kiosk-big-btn" style="flex: 1; background: ${state.kioskArmorPicaridin ? 'rgba(14, 165, 233, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; border: 1px solid ${state.kioskArmorPicaridin ? '#0ea5e9' : '#ef4444'}; color: ${state.kioskArmorPicaridin ? '#38bdf8' : '#f87171'};">
+              🧴 Picaridin 20%: ${state.kioskArmorPicaridin ? 'ON (+21.2%)' : 'OFF'}
+            </button>
+            <button id="toggleKioskPantsBtn" class="kiosk-big-btn" style="flex: 1; background: ${state.kioskArmorTucked ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; border: 1px solid ${state.kioskArmorTucked ? '#f59e0b' : '#ef4444'}; color: ${state.kioskArmorTucked ? '#fbbf24' : '#f87171'};">
+              👖 Pants Tucked: ${state.kioskArmorTucked ? 'ON (+4.6%)' : 'OFF'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    case 'clock_kinetics': {
+      const hours = state.kioskClockHours;
+      let statusText = '✅ 0h–24h: Spirochetes Dormant in Gut • Zero Transmission Risk';
+      let statusColor = '#34d399';
+      let objectSize = 'Poppy seed (Flat)';
+      if (hours >= 36 && hours < 48) {
+        statusText = '⚡ 36h+: OspC Switch Active • Eligible for Single-Dose Doxycycline';
+        statusColor = '#fbbf24';
+        objectSize = 'Watermelon seed (Swelling)';
+      } else if (hours >= 48) {
+        statusText = '🚨 48h+: High Transmission Risk • Visit NCH Walk-In Clinic';
+        statusColor = '#f87171';
+        objectSize = 'Apple seed / Eraser (Engorged)';
+      }
+
+      return `
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 16px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 0.95rem; font-weight: 700; color: #fbbf24;">
+              ⏱️ 72-Hour Biological Kinetics Slider
+            </span>
+            <span class="badge font-mono" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24;">
+              ATTACHMENT: ${hours} HOURS
+            </span>
+          </div>
+
+          <input type="range" id="kioskClockSlider" min="0" max="72" step="6" value="${hours}" style="width: 100%; height: 10px; accent-color: #fbbf24; cursor: pointer; margin: 12px 0;">
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">
+            <span>0h (Flat)</span>
+            <span>24h</span>
+            <span style="color: #fbbf24; font-weight: 700;">36h (Doxy Window)</span>
+            <span>48h</span>
+            <span style="color: #f87171; font-weight: 700;">72h (Hospital)</span>
+          </div>
+
+          <div class="kiosk-superhero-clock" style="margin-top: 16px;">
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Biological Phase &amp; Action</div>
+              <div style="font-size: 1rem; font-weight: 800; color: ${statusColor}; margin-top: 2px;">
+                ${statusText}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Visual Size Reference</div>
+              <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">
+                ${objectSize}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    case 'trail_finder': {
+      return `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div class="glass-card" style="padding: 16px; border-left: 4px solid #34d399;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-emerald font-mono">0.5/10 LOW RISK</span>
+              <span>🌊</span>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 6px 0;">Sconset Bluff Walk</h4>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Open ocean cliffside with continuous 15-knot sea breeze. Ideal for all hours.</p>
+          </div>
+
+          <div class="glass-card" style="padding: 16px; border-left: 4px solid #38bdf8;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-ocean font-mono">1.2/10 LOW RISK</span>
+              <span>🌾</span>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 6px 0;">Tupancy Links</h4>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Wide open mowed grasslands overlooking North Shore. Afternoon safe window: 1–5 PM.</p>
+          </div>
+
+          <div class="glass-card" style="padding: 16px; border-left: 4px solid #fbbf24;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-amber font-mono">7.8/10 MODERATE</span>
+              <span>🚜</span>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 6px 0;">Sanford Farm &amp; Ram Pasture</h4>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Stay in the center of the 10-foot wide gravel road. Avoid brushing trailside shrubs.</p>
+          </div>
+
+          <div class="glass-card" style="padding: 16px; border-left: 4px solid #f87171;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-red font-mono">9.5/10 EXTREME</span>
+              <span>🚨</span>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 6px 0;">Squam Swamp</h4>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Dense hardwood canopy and humid leaf litter. Permethrin socks &amp; pants tucking mandatory.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    case 'waffle_grid': {
+      return `
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 16px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 0.95rem; font-weight: 700; color: #c084fc;">
+              🪲 Nantucket 100 Nymphs Population Array
+            </span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">
+              Based on UMass Amherst TickReport PCR Testing
+            </span>
+          </div>
+          ${render100NymphsPopulationGrid()}
+        </div>
+      `;
+    }
+
+    case 'hospital_card': {
+      return `
+        <div style="background: rgba(239, 68, 68, 0.08); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 16px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="badge badge-red font-mono">NANTUCKET COTTAGE HOSPITAL</span>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: #f87171; margin-top: 6px; margin-bottom: 2px;">
+                57 Prospect Street, Nantucket, MA 02554
+              </h4>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                Direct Telephone: <a href="tel:5088251000" style="color: #38bdf8; text-decoration: none; font-weight: 700;">(508) 825-1000</a> &bull; Open 7 Days / Week
+              </p>
+            </div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Nantucket+Cottage+Hospital" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background: #ef4444; min-height: 44px; text-decoration: none; font-size: 0.85rem;">
+              🗺️ Open in Google Maps ↗
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    default: {
+      return `
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 16px; padding: 20px; text-align: center;">
+          <span style="font-size: 2rem;">🌿</span>
+          <h4 style="font-size: 1rem; font-weight: 700; color: #34d399; margin: 6px 0;">The Seven Generations Stewardship Pledge</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+            We explore with curiosity, walk with reverence on ancestral Wampanoag lands, and protect the fragile sandplain heathlands for generations to come.
+          </p>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderNaturePlayTapeDeck(): string {
+  const isPlaying = state.playTapeEngine.getIsPlaying();
+  const activeTrack = state.playTapeEngine.getActiveTrack();
+  const activeSide = state.playTapeEngine.getActiveSide();
+  const sideTracks = state.playTapeEngine.getTracksForSide(activeSide);
+  const positionSec = state.playTapeEngine.getTapePosition();
+
+  const min = Math.floor(positionSec / 60);
+  const sec = positionSec % 60;
+  const timeFormatted = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+
+  return `
+    <div class="cassette-deck-card" style="margin-top: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.6rem;">📼</span>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; margin: 0;">
+              Junior Ranger Nature Play Tape
+            </h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">
+              Child-Friendly Audio Stories &bull; Zero Data Collection &bull; COPPA Safe Harbor
+            </span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="playTapeFlipSideBtn" class="badge font-mono" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24; cursor: pointer; padding: 6px 12px;">
+            🔄 FLIP TO SIDE ${activeSide === 'A' ? 'B' : 'A'}
+          </button>
+          <span class="badge ${isPlaying ? 'badge-emerald' : 'badge-amber'} font-mono">
+            ${isPlaying ? '▶ TAPE ROLLING' : '⏹ TAPE STOPPED'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Retro Cassette Body -->
+      <div class="cassette-shell">
+        <div class="cassette-label">
+          <span>📼 NANTUCKET NATURE TAPE</span>
+          <span style="background: #78350f; color: #fef3c7; padding: 2px 8px; border-radius: 4px;">SIDE ${activeSide}</span>
+          <span>STEREO 60</span>
+        </div>
+
+        <div class="cassette-window">
+          <div class="cassette-tape-strip"></div>
+          <div class="cassette-spool ${isPlaying ? 'spinning' : ''}">
+            <div style="width: 14px; height: 14px; border-radius: 50%; background: #0f172a;"></div>
+          </div>
+
+          <div style="z-index: 2; text-align: center; background: rgba(15, 23, 42, 0.85); padding: 4px 12px; border-radius: 6px; border: 1px solid #475569;">
+            <div style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">TAPE COUNTER</div>
+            <div style="font-size: 1rem; font-weight: 800; color: #34d399; font-family: monospace;">
+              ${timeFormatted} / ${activeTrack.durationFormatted}
+            </div>
+          </div>
+
+          <div class="cassette-spool ${isPlaying ? 'spinning' : ''}">
+            <div style="width: 14px; height: 14px; border-radius: 50%; background: #0f172a;"></div>
+          </div>
+        </div>
+
+        <!-- Mechanical Controls -->
+        <div class="cassette-btn-row">
+          <button id="playTapeRewindBtn" class="cassette-btn" title="Rewind 15s">
+            ⏪ REW
+          </button>
+          ${isPlaying ? `
+            <button id="playTapePauseBtn" class="cassette-btn" style="background: linear-gradient(180deg, #d97706 0%, #b45309 100%); border-color: #fbbf24; color: white;" title="Pause Playback">
+              ⏸ PAUSE
+            </button>
+          ` : `
+            <button id="playTapePlayBtn" class="cassette-btn active-play" title="Play Story Narration">
+              ▶ PLAY
+            </button>
+          `}
+          <button id="playTapeStopBtn" class="cassette-btn" title="Stop">
+            ⏹ STOP
+          </button>
+          <button id="playTapeFwdBtn" class="cassette-btn" title="Fast Forward 15s">
+            ⏩ FWD
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Track Story Info & Spoken Reader -->
+      <div style="margin-top: 18px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; text-transform: uppercase;">
+              Track ${activeTrack.trackNumber} &bull; ${activeTrack.tagline}
+            </span>
+            <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin: 4px 0;">
+              ${activeTrack.icon} ${activeTrack.title}
+            </h4>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">
+              Narrated by: <strong>${activeTrack.narrator}</strong>
+            </span>
+          </div>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 12px 0 0 0; background: rgba(7, 10, 18, 0.6); padding: 14px; border-radius: 10px; border-left: 3px solid #38bdf8;">
+          "${activeTrack.spokenStory}"
+        </p>
+      </div>
+
+      <!-- Side Track Selection List -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Tracks on Side ${activeSide}:
+        </span>
+        ${sideTracks.map(t => `
+          <button class="play-tape-track-pill ${t.id === activeTrack.id ? 'active' : ''}" data-play-tape-track="${t.id}">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.2rem;">${t.icon}</span>
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">${t.title}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${t.narrator}</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.75rem; color: #38bdf8; font-family: monospace;">${t.durationFormatted}</span>
+              <span style="font-size: 0.9rem;">${t.id === activeTrack.id && isPlaying ? '🔊' : '▶'}</span>
+            </div>
+          </button>
+        `).join('')}
+      </div>
+
+      <!-- COPPA / Child Safety & Zooniverse Notice -->
+      <div style="margin-top: 16px; padding: 12px 16px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: #94a3b8;">
+        <span style="font-size: 1.4rem;">🔒</span>
+        <div>
+          <strong style="color: #38bdf8;">Child Safety &amp; COPPA Safe Harbor:</strong> Zero logins, zero names, zero emails. Children can explore real nature science on <a href="https://www.zooniverse.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline;">Zooniverse.org</a> safely and anonymously.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderKioskQrModal(chapter: IKioskStoryChapter): string {
+  const url = state.kioskEngine.generateMobileHandoffUrl(chapter.id);
+  const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}&color=38bdf8&bgcolor=0a0f1d`;
+
+  return `
+    <div style="position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.25s ease;">
+      <div class="glass-card" style="max-width: 440px; width: 100%; padding: 28px; text-align: center; border: 2px solid #38bdf8; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);">
+        <span style="font-size: 2.5rem;">📱</span>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 8px 0;">
+          Take This Guide On Your Island Adventure
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px;">
+          Scan with your phone's camera. Works offline in the moors with zero cellular data!
+        </p>
+
+        <div style="background: #0a0f1d; padding: 16px; border-radius: 16px; display: inline-block; border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+          <img src="${qrApi}" alt="Kiosk Mobile Sync QR Code" width="220" height="220" style="display: block; border-radius: 8px;">
+        </div>
+
+        <div style="font-size: 0.75rem; color: #38bdf8; font-family: monospace; word-break: break-all; margin-bottom: 20px;">
+          ${url}
+        </div>
+
+        <button id="closeKioskQrBtn" class="btn-primary" style="width: 100%; min-height: 48px; font-size: 0.95rem;">
+          Done / Return to Kiosk
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderKioskScreensaverOverlay(): string {
+  return `
+    <div class="kiosk-screensaver-overlay" id="wakeKioskOverlay">
+      <div class="kiosk-screensaver-card">
+        <div style="font-size: 4rem; margin-bottom: 12px; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
+          🦋
+        </div>
+        <div class="badge font-mono" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; font-size: 0.85rem; padding: 6px 14px; margin-bottom: 16px;">
+          NANTUCKET VISITOR CENTER &amp; FERRY KIOSK
+        </div>
+        <h1 style="font-size: 2.4rem; font-weight: 900; color: var(--text-primary); line-height: 1.2; margin: 12px 0;">
+          Welcome to Nantucket
+        </h1>
+        <p style="font-size: 1.1rem; color: #94a3b8; max-width: 580px; margin: 0 auto 32px auto; line-height: 1.6;">
+          Explore the rare beauty of the sandplain moors, discover interactive trail armor science, and master simple family safety.
+        </p>
+
+        <div style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 800; font-size: 1.15rem; padding: 18px 36px; border-radius: 18px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.5);">
+          <span>Touch Anywhere to Begin Story ➔</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // ─── DELEGATED EVENT SYSTEM ──────────────────────────────────────────────
 // Single document-level listeners that survive innerHTML re-renders.
 // Bound once at DOMContentLoaded; they use closest() to match ephemeral DOM nodes.
@@ -2437,6 +2984,113 @@ function wireDelegatedEvents(): void {
   // ── CLICK delegation ─────────────────────────────────────────────
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
+
+    // Kiosk Screensaver Wake
+    if (target.closest('#wakeKioskOverlay')) {
+      state.kioskEngine.wakeKiosk();
+      renderApp();
+      return;
+    }
+
+    // Kiosk Screensaver Trigger
+    if (target.closest('#kioskScreensaverBtn')) {
+      state.kioskEngine.triggerScreensaver();
+      renderApp();
+      return;
+    }
+
+    // Kiosk Chapter Stepper
+    const kioskPill = target.closest('[data-kiosk-chapter]') as HTMLElement | null;
+    if (kioskPill) {
+      const ch = parseInt(kioskPill.dataset.kioskChapter || '0', 10);
+      state.kioskEngine.setChapterIndex(ch);
+      renderApp();
+      return;
+    }
+
+    // Kiosk Next / Prev
+    if (target.closest('#kioskPrevBtn')) {
+      state.kioskEngine.prevChapter();
+      renderApp();
+      return;
+    }
+    if (target.closest('#kioskNextBtn')) {
+      state.kioskEngine.nextChapter();
+      renderApp();
+      return;
+    }
+
+    // Kiosk QR Modal
+    if (target.closest('#kioskQrBtn') || target.closest('#kioskQrTakeawayBtn')) {
+      state.showKioskQrModal = true;
+      renderApp();
+      return;
+    }
+    if (target.closest('#closeKioskQrBtn')) {
+      state.showKioskQrModal = false;
+      renderApp();
+      return;
+    }
+
+    // Kiosk Armor Lab Toggles
+    if (target.closest('#toggleKioskSocksBtn')) {
+      state.kioskArmorSocks = !state.kioskArmorSocks;
+      renderApp();
+      return;
+    }
+    if (target.closest('#toggleKioskPicaridinBtn')) {
+      state.kioskArmorPicaridin = !state.kioskArmorPicaridin;
+      renderApp();
+      return;
+    }
+    if (target.closest('#toggleKioskPantsBtn')) {
+      state.kioskArmorTucked = !state.kioskArmorTucked;
+      renderApp();
+      return;
+    }
+
+    // 📼 Nature Play Tape Controls
+    if (target.closest('#playTapePlayBtn')) {
+      state.playTapeEngine.play();
+      renderApp();
+      return;
+    }
+    if (target.closest('#playTapePauseBtn')) {
+      state.playTapeEngine.pause();
+      renderApp();
+      return;
+    }
+    if (target.closest('#playTapeStopBtn')) {
+      state.playTapeEngine.stop();
+      renderApp();
+      return;
+    }
+    if (target.closest('#playTapeRewindBtn')) {
+      state.playTapeEngine.rewind();
+      renderApp();
+      return;
+    }
+    if (target.closest('#playTapeFwdBtn')) {
+      state.playTapeEngine.fastForward();
+      renderApp();
+      return;
+    }
+    if (target.closest('#playTapeFlipSideBtn')) {
+      const nextSide = state.playTapeEngine.getActiveSide() === 'A' ? 'B' : 'A';
+      state.playTapeEngine.setSide(nextSide);
+      renderApp();
+      return;
+    }
+    const playTrackBtn = target.closest('[data-play-tape-track]') as HTMLElement | null;
+    if (playTrackBtn) {
+      const trackId = playTrackBtn.dataset.playTapeTrack;
+      if (trackId) {
+        state.playTapeEngine.selectTrack(trackId);
+        state.playTapeEngine.play();
+        renderApp();
+        return;
+      }
+    }
 
     // Navigation Tabs
     const navTab = target.closest('.nav-tab[data-tab]') as HTMLElement | null;
@@ -2801,6 +3455,11 @@ function wireDelegatedEvents(): void {
       renderApp();
       return;
     }
+    if (id === 'kioskClockSlider') {
+      state.kioskClockHours = parseInt(target.value, 10);
+      renderApp();
+      return;
+    }
 
     // Article Search Input
     if (id === 'articleSearchInput') {
@@ -2888,7 +3547,9 @@ document.addEventListener('keydown', (e) => {
     's': 'sources',
     'S': 'sources',
     'h': 'hospital',
-    'H': 'hospital'
+    'H': 'hospital',
+    'k': 'kiosk',
+    'K': 'kiosk'
   };
 
   if (tabKeys[e.key]) {
