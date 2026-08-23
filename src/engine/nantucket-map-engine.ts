@@ -6,6 +6,7 @@ import {
   SAFE_CORRIDOR_ROUTES,
   computeHospitalTransitStats
 } from '../data/nantucket-geo.js';
+import { COASTAL_BUOY_STATIONS, INoaaBuoyStation } from '../data/coastal-buoy-data.js';
 
 export type BasemapMode = 'satellite' | 'dark' | 'topo';
 
@@ -15,6 +16,7 @@ export interface IMapLayerState {
   showSafeCorridors: boolean;
   showHospitalAndPharmacies: boolean;
   showSolarDesiccation: boolean;
+  showMarineBuoys: boolean;
 }
 
 export class NantucketMapEngine {
@@ -28,6 +30,7 @@ export class NantucketMapEngine {
     corridors: any;
     markers: any;
     solarDunes: any;
+    marineBuoys: any;
   } | null = null;
 
   private layers: IMapLayerState = {
@@ -35,7 +38,8 @@ export class NantucketMapEngine {
     showRiskHeatmap: true,
     showSafeCorridors: true,
     showHospitalAndPharmacies: true,
-    showSolarDesiccation: true
+    showSolarDesiccation: true,
+    showMarineBuoys: true
   };
 
   private onLocationSelectedCallback: ((loc: IIslandLocation) => void) | null = null;
@@ -191,13 +195,15 @@ export class NantucketMapEngine {
       heatmaps: L.layerGroup().addTo(this.map),
       corridors: L.layerGroup().addTo(this.map),
       markers: L.layerGroup().addTo(this.map),
-      solarDunes: L.layerGroup().addTo(this.map)
+      solarDunes: L.layerGroup().addTo(this.map),
+      marineBuoys: L.layerGroup().addTo(this.map)
     };
 
     this.renderHeatmaps(L);
     this.renderCorridors(L);
     this.renderMarkers(L);
     this.renderSolarDunes(L);
+    this.renderMarineBuoys(L);
     this.syncOverlayVisibility();
 
     // Invalidate size to ensure clean tile render
@@ -345,6 +351,64 @@ export class NantucketMapEngine {
     }).bindTooltip('☀️ Madaket Beach: Salt Spray & Sand Dune Desiccation', { permanent: false }).addTo(this.overlayLayers.solarDunes);
   }
 
+  private renderMarineBuoys(L: any) {
+    if (!this.overlayLayers) return;
+    this.overlayLayers.marineBuoys.clearLayers();
+
+    COASTAL_BUOY_STATIONS.forEach(buoy => {
+      const buoyIcon = L.divIcon({
+        className: 'custom-buoy-marker',
+        html: `
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); border: 2.5px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 16px rgba(14, 165, 233, 0.8); cursor: pointer; transform: translate(-50%, -50%);">
+            ⚓
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      const marker = L.marker(buoy.coordinates, { icon: buoyIcon }).addTo(this.overlayLayers!.marineBuoys);
+
+      marker.bindPopup(`
+        <div style="font-family: 'Inter', sans-serif; color: #0f172a; padding: 6px; max-width: 280px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+            <span style="font-size: 0.7rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px;">${buoy.agency}</span>
+            <span style="font-size: 0.7rem; color: #64748b;">${buoy.distanceFromIsland}</span>
+          </div>
+          <h4 style="margin: 0 0 6px 0; font-size: 0.9rem; font-weight: 800; color: #0f172a;">${buoy.name}</h4>
+          
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; font-size: 0.75rem; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+              <div><strong>🌊 Water:</strong> ${buoy.waterTempF}°F</div>
+              <div><strong>🌡️ Air:</strong> ${buoy.airTempF}°F</div>
+              <div><strong>💧 Humidity:</strong> ${buoy.relativeHumidityPercent}%</div>
+              <div><strong>💨 Wind:</strong> ${buoy.windSpeedKnots} kts ${buoy.windDirectionCardinal}</div>
+              <div><strong>🌊 Swell:</strong> ${buoy.waveHeightFt} ft (${buoy.wavePeriodSec}s)</div>
+              <div><strong>🌫️ Sea Fog:</strong> ${buoy.seaFogStatus}</div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.72rem; color: #334155; line-height: 1.4; margin-bottom: 8px;">
+            <strong>Tick Ecology Impact:</strong><br/>
+            ${buoy.tickEcologyImpact}
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <a href="${buoy.noaaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 4px 8px; background: #0284c7; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">
+              Live NOAA Page ↗
+            </a>
+          </div>
+        </div>
+      `);
+
+      marker.bindTooltip(`
+        <div style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem; padding: 2px;">
+          ⚓ ${buoy.name.split(' — ')[0]} (${buoy.waterTempF}°F SST • ${buoy.waveHeightFt}ft Swell)
+        </div>
+      `, { direction: 'top', offset: [0, -16] });
+    });
+  }
+
   private syncOverlayVisibility() {
     if (!this.map || !this.overlayLayers) return;
 
@@ -370,6 +434,12 @@ export class NantucketMapEngine {
       if (!this.map.hasLayer(this.overlayLayers.solarDunes)) this.map.addLayer(this.overlayLayers.solarDunes);
     } else {
       if (this.map.hasLayer(this.overlayLayers.solarDunes)) this.map.removeLayer(this.overlayLayers.solarDunes);
+    }
+
+    if (this.layers.showMarineBuoys) {
+      if (!this.map.hasLayer(this.overlayLayers.marineBuoys)) this.map.addLayer(this.overlayLayers.marineBuoys);
+    } else {
+      if (this.map.hasLayer(this.overlayLayers.marineBuoys)) this.map.removeLayer(this.overlayLayers.marineBuoys);
     }
   }
 }

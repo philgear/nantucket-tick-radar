@@ -17,6 +17,7 @@ import { FerryKitStore } from './engine/ferry-kit-planner.js';
 import { SoundOfMoorsAudio } from './engine/sound-of-moors.js';
 import { CommunityPortalStore } from './engine/community-portal-store.js';
 import { SOURCES_BIBLIOGRAPHY, ISourceCitation } from './data/sources-bibliography.js';
+import { COASTAL_BUOY_STATIONS, INoaaBuoyStation } from './data/coastal-buoy-data.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -438,6 +439,9 @@ function renderMapTab(): string {
           <button class="map-layer-btn ${layers.showSolarDesiccation ? 'active' : ''}" data-layer="showSolarDesiccation">
             ☀️ Solar Dunes
           </button>
+          <button class="map-layer-btn ${layers.showMarineBuoys ? 'active' : ''}" data-layer="showMarineBuoys">
+            🌊 Marine Buoys
+          </button>
         </div>
       </div>
 
@@ -853,6 +857,88 @@ function renderWeatherDesiccationTab(): string {
 
         </div>
 
+      </div>
+
+      <!-- NOAA & Coastal Buoy Marine Layer Radar Panel -->
+      <div class="glass-panel" style="padding: 24px; border-left: 4px solid #0ea5e9;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+              <span class="badge badge-ocean font-mono">NOAA NDBC & NERACOOS LIVE TELEMETRY</span>
+              <span class="badge badge-emerald font-mono">4 OFFSHORE STATIONS</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+              🌊 NOAA & Coastal Buoy Marine Layer Radar
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-top: 4px;">
+              Cold Atlantic waters meet humid air to create the heavy <strong>Nantucket Sea Fog</strong> (RH &gt;90%). When the marine layer rolls in, blacklegged tick nymphs quest freely without drying out.
+            </p>
+          </div>
+          <a href="https://www.ndbc.noaa.gov/maps/Northeast.shtml" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size: 0.75rem; text-decoration: none;">
+            🌐 View NOAA Northeast Buoys ↗
+          </a>
+        </div>
+
+        <!-- 4 Buoy Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+          ${COASTAL_BUOY_STATIONS.map(buoy => {
+            const isFoggy = buoy.seaFogStatus === 'Dense Marine Fog';
+            return `
+              <div class="glass-card" style="padding: 18px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid ${isFoggy ? 'var(--accent-red)' : '#0ea5e9'};">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div>
+                      <span class="badge badge-ocean font-mono" style="font-size: 0.7rem;">${buoy.agency}</span>
+                      <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">
+                        ${buoy.name}
+                      </h4>
+                    </div>
+                    <span class="badge ${isFoggy ? 'badge-red' : 'badge-emerald'} font-mono" style="font-size: 0.7rem;">
+                      ${buoy.seaFogStatus}
+                    </span>
+                  </div>
+
+                  <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">
+                    📍 ${buoy.locationDescription} &bull; <strong style="color: var(--text-secondary);">${buoy.distanceFromIsland}</strong>
+                  </p>
+
+                  <!-- Telemetry Grid -->
+                  <div style="background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
+                      <div><span style="color: var(--text-muted);">🌊 Ocean Temp:</span> <strong class="font-mono" style="color: #38bdf8;">${buoy.waterTempF}°F</strong></div>
+                      <div><span style="color: var(--text-muted);">🌡️ Air Temp:</span> <strong class="font-mono" style="color: #fbfdfa;">${buoy.airTempF}°F</strong></div>
+                      <div><span style="color: var(--text-muted);">💧 Rel Humidity:</span> <strong class="font-mono" style="color: ${buoy.relativeHumidityPercent >= 85 ? '#f87171' : '#34d399'};">${buoy.relativeHumidityPercent}%</strong></div>
+                      <div><span style="color: var(--text-muted);">💨 Wind:</span> <strong class="font-mono" style="color: #fbfdfa;">${buoy.windSpeedKnots} kts ${buoy.windDirectionCardinal}</strong></div>
+                      <div><span style="color: var(--text-muted);">🌊 Swell:</span> <strong class="font-mono" style="color: #fbbf24;">${buoy.waveHeightFt} ft (${buoy.wavePeriodSec}s)</strong></div>
+                      <div><span style="color: var(--text-muted);">👁️ Visibility:</span> <strong class="font-mono" style="color: var(--text-secondary);">${buoy.visibilityMiles} NM</strong></div>
+                    </div>
+                  </div>
+
+                  <!-- Tick Ecology Impact -->
+                  <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.4;">
+                    <strong style="color: #fb923c;">Tick Ecology Impact:</strong> ${buoy.tickEcologyImpact}
+                  </div>
+
+                  <!-- Ferry Transit Note -->
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 14px;">
+                    <strong>🚢 Ferry / Water Transit:</strong> ${buoy.ferryCrossingAdvice}
+                  </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="btn-primary" data-apply-buoy="${buoy.id}" style="flex: 1; font-size: 0.75rem; padding: 8px 12px; justify-content: center;" title="Apply ${buoy.airTempF}°F, ${buoy.relativeHumidityPercent}% RH, ${buoy.windSpeedKnots} kts to Desiccation Index">
+                    🔄 Apply Buoy Conditions
+                  </button>
+                  <a href="${buoy.noaaUrl}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size: 0.75rem; padding: 8px 12px; text-decoration: none;" title="Open official station page">
+                    NOAA ↗
+                  </a>
+                </div>
+
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
 
     </div>
@@ -2158,6 +2244,20 @@ function attachEventListeners() {
         state.weatherTempF = preset.tempF;
         state.weatherHumidity = preset.relativeHumidityPercent;
         state.weatherWindKnots = preset.windSpeedKnots;
+        renderApp();
+      }
+    });
+  });
+
+  // Coastal Buoy Live Telemetry Sync Buttons
+  document.querySelectorAll('button[data-apply-buoy]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const buoyId = (e.currentTarget as HTMLElement).dataset.applyBuoy;
+      const buoy = COASTAL_BUOY_STATIONS.find(b => b.id === buoyId);
+      if (buoy) {
+        state.weatherTempF = Math.round(buoy.airTempF);
+        state.weatherHumidity = buoy.relativeHumidityPercent;
+        state.weatherWindKnots = Math.round(buoy.windSpeedKnots);
         renderApp();
       }
     });
