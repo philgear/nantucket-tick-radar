@@ -322,19 +322,26 @@ function renderApp() {
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: var(--text-secondary); text-transform: uppercase;">📚 Island Libraries & Learning</strong>
+          <a href="https://www.nantucketatheneum.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Atheneum Library ↗</a>
+          <a href="https://www.mariamitchell.org/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Maria Mitchell Association ↗</a>
+          <a href="https://www.nantucket-ma.gov/245/Health-Human-Services" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none;">&bull; Nantucket Board of Health ↗</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 4px;">
           <strong style="color: var(--text-secondary); text-transform: uppercase;">🔬 Science & Civic Research</strong>
           <a href="https://www.media.mit.edu/projects/mice-against-ticks/overview/" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; MIT: Mice Against Ticks Project ↗</a>
-          <a href="https://www.nantucket-ma.gov/245/Health-Human-Services" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; Town of Nantucket Health Dept ↗</a>
           <a href="https://academic.oup.com/cid/article/72/1/e1/6010652" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; IDSA Lyme Prophylaxis Guidelines ↗</a>
+          <a href="https://www.zooniverse.org/" target="_blank" rel="noopener noreferrer" style="color: #c084fc; text-decoration: none;">&bull; Zooniverse Citizen Science ↗</a>
         </div>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 12px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
         <div>
-          Powered by <span class="font-pocketgull-brand" style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">PocketGull</span> &bull; Open-Source Clinical Intelligence
+          Powered by <span class="font-pocketgull-brand" style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">PocketGull</span> &bull; Open-Source Clinical & Community Intelligence
         </div>
-        <div style="font-size: 0.7rem;">
-          Five Eyes Standards &bull; Seven Generations Stewardship &bull; Island Tick Detectives
+        <div style="font-size: 0.75rem; color: #34d399;">
+          🌿 Community Land Stewardship &bull; 📖 Island Libraries & Public Science &bull; 🏡 Family & Grandparent Safety
         </div>
       </div>
     </footer>
