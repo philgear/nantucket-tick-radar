@@ -1,7 +1,7 @@
 export interface IIslandLocation {
   id: string;
   name: string;
-  category: 'trail' | 'hospital' | 'pharmacy' | 'beach' | 'paved_corridor' | 'landmark';
+  category: 'trail' | 'hospital' | 'pharmacy' | 'beach' | 'paved_corridor' | 'landmark' | 'town_hall' | 'library' | 'senior_center' | 'civic_center';
   lat: number;
   lng: number;
   riskRating: 'Zero' | 'Low' | 'Moderate' | 'High' | 'Extreme';
@@ -34,6 +34,99 @@ export const NANTUCKET_ISLAND_CENTER = {
 };
 
 export const NANTUCKET_LOCATIONS: IIslandLocation[] = [
+  // Town Halls, Libraries & Civic Centers
+  {
+    id: 'nantucket-town-hall',
+    name: 'Nantucket Town Hall (16 Broad St)',
+    category: 'town_hall',
+    lat: 41.2858,
+    lng: -70.0988,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'Municipal headquarters for the Town of Nantucket, Select Board chambers, Town Clerk, and municipal public health administration.',
+    safetyTip: 'Visit for official island maps, civic meeting agendas, and municipal health notices at 16 Broad Street.',
+    googleMapsQuery: 'Nantucket+Town+Hall+16+Broad+St+Nantucket+MA'
+  },
+  {
+    id: 'nantucket-atheneum',
+    name: 'Nantucket Atheneum Free Public Library (1 India St)',
+    category: 'library',
+    lat: 41.2838,
+    lng: -70.0994,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'Historic free public library offering community research, librarian reference consultations, public Wi-Fi, educational family science kits, and community tick field guides.',
+    safetyTip: 'Explore reference archives and children’s science programs at 1 India St in downtown Nantucket.',
+    googleMapsQuery: 'Nantucket+Atheneum+1+India+St+Nantucket+MA'
+  },
+  {
+    id: 'saltmarsh-senior-center',
+    name: 'Saltmarsh Senior Center (81 Washington St)',
+    category: 'senior_center',
+    lat: 41.2798,
+    lng: -70.0924,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'Dedicated community center for island seniors, grandparents, and elder wellness programs with accessible wellness seminars, walking groups, and health consultations.',
+    safetyTip: '81 Washington Street — community wellness seminars, senior fitness, and free tick awareness brochures.',
+    googleMapsQuery: 'Saltmarsh+Senior+Center+81+Washington+St+Nantucket+MA'
+  },
+  {
+    id: 'nantucket-health-dept',
+    name: 'Nantucket Health & Human Services / Tick Drop-off (131 Pleasant St)',
+    category: 'civic_center',
+    lat: 41.2721,
+    lng: -70.0982,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'Town of Nantucket Health Department, public health nurse office, and official municipal tick specimen drop-off station for PCR pathogen testing.',
+    safetyTip: 'Bring removed ticks in a sealed ziploc bag with damp paper towel for town species identification and pathogen testing.',
+    googleMapsQuery: 'Nantucket+Health+Department+131+Pleasant+St+Nantucket+MA'
+  },
+  {
+    id: 'nantucket-public-safety',
+    name: 'Nantucket Public Safety Facility / Police & Fire HQ (4 Fairgrounds Rd)',
+    category: 'civic_center',
+    lat: 41.2655,
+    lng: -70.0945,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'Central 911 dispatch, Nantucket Police Department, Fire & Rescue headquarters, and emergency ambulance dispatch for all island sectors.',
+    safetyTip: 'Dial 911 for anaphylaxis, severe acute medical emergencies, or ambulance transport.',
+    googleMapsQuery: 'Nantucket+Public+Safety+Facility+4+Fairgrounds+Rd+Nantucket+MA'
+  },
+  {
+    id: 'sconset-civic-hall',
+    name: "Siasconset Union Chapel & Village Hall (18 New St, 'Sconset)",
+    category: 'civic_center',
+    lat: 41.2642,
+    lng: -69.9654,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: "'Sconset village community center, historical civic hall, and local information point for East End residents and visitors.",
+    safetyTip: 'Historic village square hub with community bulletin boards and paved walking access to the Bluff Walk.',
+    googleMapsQuery: 'Siasconset+Union+Chapel+18+New+St+Siasconset+MA'
+  },
+  {
+    id: 'madaket-community-hub',
+    name: "Madaket Community Center & Millie's Civic Hub (326 Madaket Rd)",
+    category: 'civic_center',
+    lat: 41.2745,
+    lng: -70.1985,
+    riskRating: 'Zero',
+    tickExposureIndex: 0,
+    surfaceType: 'Asphalt / Paved',
+    description: 'West End community meeting point, NRTA Wave shuttle depot, and marine safety hub for Madaket Harbor.',
+    safetyTip: 'Paved shuttle terminus and safe ocean walking paths; check socks before heading back onto sandy dune trails.',
+    googleMapsQuery: 'Millies+326+Madaket+Rd+Nantucket+MA'
+  },
+
   // Clinical & Emergency
   {
     id: 'nch-hospital',

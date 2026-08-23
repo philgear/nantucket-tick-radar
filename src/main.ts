@@ -18,6 +18,8 @@ import { SoundOfMoorsAudio } from './engine/sound-of-moors.js';
 import { CommunityPortalStore } from './engine/community-portal-store.js';
 import { SOURCES_BIBLIOGRAPHY, ISourceCitation } from './data/sources-bibliography.js';
 import { COASTAL_BUOY_STATIONS, INoaaBuoyStation } from './data/coastal-buoy-data.js';
+import { NANTUCKET_PUBLIC_MEETING_NOTES, IPublicMeetingNote } from './data/public-meeting-notes.js';
+import { UPCOMING_ISLAND_CIVIC_EVENTS, IIslandCivicEvent } from './data/island-civic-events.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -30,7 +32,11 @@ class AppState {
   public selectedSourceCategory: string = 'all';
   public sourceSearchQuery: string = '';
 
-  // 6th Grade Reading Mode & 3D Flip Card System
+  // Public Meeting Notes & Events state
+  public selectedMeetingCategory: string = 'all';
+  public selectedCivicEventCategory: string = 'all';
+
+  // 6th Grade Reading Mode & Card Swap System
   public globalReadingMode: 'clinical' | 'grade6' = 'clinical';
   public flippedCardIds = new Set<string>();
 
@@ -47,6 +53,7 @@ class AppState {
     if (this.globalReadingMode === 'grade6') {
       SOURCES_BIBLIOGRAPHY.forEach(s => this.flippedCardIds.add(s.id));
       ARTICLES_LIBRARY.forEach(a => this.flippedCardIds.add(a.id));
+      NANTUCKET_PUBLIC_MEETING_NOTES.forEach(m => this.flippedCardIds.add(m.id));
     } else {
       this.flippedCardIds.clear();
     }
@@ -1454,6 +1461,237 @@ function renderCommunityPortalTab(): string {
 
       </div>
 
+      <!-- ================================================================= -->
+      <!-- SECTION 3: UPCOMING ISLAND CIVIC & COMMUNITY EVENTS CALENDAR      -->
+      <!-- ================================================================= -->
+      <div class="glass-panel" style="padding: 24px; border-left: 4px solid var(--accent-ocean);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+              <span class="badge badge-ocean font-mono">ISLAND CIVIC CALENDAR</span>
+              <span class="badge badge-emerald font-mono">100% FREE PUBLIC ADMISSION</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+              📅 Upcoming Island Civic & Community Events
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-top: 4px;">
+              Public workshops, town health hearings, family ecology walks, and grandparent wellness mornings hosted by the <strong>Nantucket Atheneum</strong>, <strong>Board of Health</strong>, <strong>Saltmarsh Senior Center</strong>, and <strong>Maria Mitchell Association</strong>.
+            </p>
+          </div>
+
+          <!-- Event Category Filter Pills -->
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            ${[
+              { id: 'all', label: 'All Events' },
+              { id: 'Library Workshop', label: '📚 Library Workshops' },
+              { id: 'Public Hearing', label: '🏛️ Public Hearings' },
+              { id: 'Family Nature Walk', label: '🌲 Family Walks' },
+              { id: 'Senior Wellness', label: '👵 Senior Wellness' },
+              { id: 'Citizen Science', label: '🔬 Citizen Science' }
+            ].map(cat => `
+              <button class="preset-pill-btn ${state.selectedCivicEventCategory === cat.id ? 'active' : ''}" data-event-cat="${cat.id}">
+                ${cat.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+          ${UPCOMING_ISLAND_CIVIC_EVENTS
+            .filter(ev => state.selectedCivicEventCategory === 'all' || ev.category === state.selectedCivicEventCategory)
+            .map(ev => `
+              <div class="glass-card" style="padding: 18px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid var(--accent-ocean);">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                    <span class="badge badge-ocean font-mono" style="font-size: 0.68rem;">${ev.category}</span>
+                    <span class="badge badge-emerald font-mono" style="font-size: 0.68rem;">FREE EVENT</span>
+                  </div>
+
+                  <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">
+                    ${ev.title}
+                  </h4>
+
+                  <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 2px;">
+                    🗓️ ${ev.date} &bull; ⏰ ${ev.time}
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px;">
+                    📍 ${ev.location} &bull; 🏛️ <em>${ev.organizer}</em>
+                  </div>
+
+                  <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+                    ${ev.description}
+                  </p>
+
+                  <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px; font-size: 0.75rem; margin-bottom: 10px;">
+                    <strong style="color: #fb923c;">🏡 Grandparent & Family Note:</strong> ${ev.familyAndGrandparentBenefit}
+                  </div>
+
+                  <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; font-size: 0.75rem; margin-bottom: 12px;">
+                    <strong style="color: #34d399;">📖 Librarian Tip:</strong> ${ev.librarianTip}
+                  </div>
+                </div>
+
+                <div style="font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                  <strong>Contact & Info:</strong> ${ev.rsvpOrContact}
+                </div>
+              </div>
+            `).join('')}
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SECTION 4: NANTUCKET TOWN HALL & PUBLIC MEETING NOTES ARCHIVE     -->
+      <!-- ================================================================= -->
+      <div class="glass-panel" style="padding: 24px; border-left: 4px solid #f97316;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+              <span class="badge badge-ocean font-mono">OFFICIAL MUNICIPAL ARCHIVE</span>
+              <span class="badge badge-emerald font-mono">PUBLIC HEARING RECORDS</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+              🏛️ Nantucket Town Hall & Public Meeting Notes Archive
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-top: 4px;">
+              Verified public minutes, votes, resident comments, and policy decisions from the <strong>Board of Health</strong>, <strong>Select Board</strong>, <strong>Atheneum Science Forums</strong>, and <strong>Senior Center</strong>. Double-click any card to view the 6th-Grade family summary!
+            </p>
+          </div>
+
+          <!-- Meeting Filter Pills -->
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            ${[
+              { id: 'all', label: 'All Minutes' },
+              { id: 'Nantucket Board of Health', label: '🏥 Board of Health' },
+              { id: 'Nantucket Select Board', label: '🏛️ Select Board' },
+              { id: 'Nantucket Atheneum Science Forum', label: '📚 Atheneum Science' },
+              { id: 'Saltmarsh Senior Center Advisory', label: '👵 Senior Center' },
+              { id: 'Nantucket Public Schools Committee', label: '🏫 School Committee' }
+            ].map(cat => `
+              <button class="preset-pill-btn ${state.selectedMeetingCategory === cat.id ? 'active' : ''}" data-meeting-cat="${cat.id}">
+                ${cat.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Meeting Notes Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px;">
+          ${NANTUCKET_PUBLIC_MEETING_NOTES
+            .filter(m => state.selectedMeetingCategory === 'all' || m.governingBody === state.selectedMeetingCategory)
+            .map(m => {
+              const isFlipped = state.flippedCardIds.has(m.id);
+              return `
+                <div class="flip-card-container ${isFlipped ? 'flipped' : ''}" data-card-id="${m.id}">
+                  <div class="flip-card-inner">
+                    
+                    <!-- FRONT: Full Official Meeting Minutes & Votes -->
+                    <div class="flip-card-front glass-card" style="padding: 20px; border-left: 4px solid var(--accent-ocean);">
+                      <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                          <span class="badge badge-ocean font-mono" style="font-size: 0.7rem;">${m.governingBody}</span>
+                          <span class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">${m.date}</span>
+                        </div>
+
+                        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
+                          ${m.title}
+                        </h4>
+
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 12px;">
+                          📍 ${m.location} &bull; 🗣️ <em>Chair: ${m.chairpersonOrSpeaker}</em>
+                        </div>
+
+                        <!-- Topics Covered -->
+                        <div style="margin-bottom: 10px;">
+                          <strong style="font-size: 0.75rem; color: var(--accent-ocean); text-transform: uppercase;">📋 Agenda Topics:</strong>
+                          <ul style="padding-left: 16px; font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+                            ${m.topicsCovered.map(t => `<li>${t}</li>`).join('')}
+                          </ul>
+                        </div>
+
+                        <!-- Key Votes & Decisions -->
+                        <div style="margin-bottom: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px;">
+                          <strong style="font-size: 0.75rem; color: #34d399; text-transform: uppercase;">🗳️ Key Decisions & Votes:</strong>
+                          <ul style="padding-left: 16px; font-size: 0.75rem; color: var(--text-primary); margin-top: 4px; line-height: 1.4;">
+                            ${m.keyDecisionsAndVotes.map(d => `<li>${d}</li>`).join('')}
+                          </ul>
+                        </div>
+
+                        <!-- Public Comments -->
+                        <div style="margin-bottom: 12px; background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+                          <strong style="font-size: 0.75rem; color: #fbbf24; text-transform: uppercase;">🗣️ Public Resident Comments:</strong>
+                          <ul style="padding-left: 16px; font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+                            ${m.publicCommentsSummary.map(c => `<li>${c}</li>`).join('')}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 10px;">
+                        <span style="font-size: 0.68rem; color: var(--text-muted);">${m.officialReferenceDoc}</span>
+                        <button class="toggle-flip-btn" data-flip-target="${m.id}" title="Flip to 6th-Grade Plain English Summary">
+                          🔄 View 6th-Grade Summary ↗
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- BACK: 6th-Grade Plain English & Librarian Discussion Guide -->
+                    <div class="flip-card-back">
+                      <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                          <span class="badge badge-emerald font-mono" style="font-size: 0.7rem;">🎒 6TH-GRADE PLAIN ENGLISH</span>
+                          <span class="badge badge-ocean font-mono" style="font-size: 0.7rem;">${m.governingBody}</span>
+                        </div>
+
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #ffffff; margin-bottom: 12px;">
+                          ${m.title}
+                        </h4>
+
+                        <!-- Plain English Grandparent & Family Takeaway -->
+                        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+                          <h5 style="font-size: 0.8rem; font-weight: 800; color: #34d399; margin-bottom: 6px; text-transform: uppercase;">
+                            🏡 Grandparent & Family Takeaway:
+                          </h5>
+                          <p style="font-size: 0.85rem; color: #fbfdfa; line-height: 1.5;">
+                            ${m.grandparentAndFamilyTakeaway}
+                          </p>
+                        </div>
+
+                        <!-- Action Items for Home -->
+                        <div style="background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+                          <h5 style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; margin-bottom: 6px; text-transform: uppercase;">
+                            ✅ What You Should Do at Home:
+                          </h5>
+                          <ul style="padding-left: 18px; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45;">
+                            ${m.actionItemsForResidents.map(a => `<li>${a}</li>`).join('')}
+                          </ul>
+                        </div>
+
+                        <!-- Librarian Guide -->
+                        <div style="background: rgba(249, 115, 22, 0.12); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 8px; padding: 12px;">
+                          <h5 style="font-size: 0.8rem; font-weight: 800; color: #fb923c; margin-bottom: 4px; text-transform: uppercase;">
+                            📖 Librarian Discussion Guide:
+                          </h5>
+                          <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">
+                            ${m.librarianDiscussionGuide}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(16, 185, 129, 0.3); padding-top: 12px; margin-top: 12px;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Official: ${m.officialReferenceDoc}</span>
+                        <button class="toggle-flip-btn" data-flip-target="${m.id}">
+                          🔄 Flip Back to Minutes ↗
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              `;
+            }).join('')}
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -2201,6 +2439,28 @@ function attachEventListeners() {
       document.body.removeChild(link);
     });
   }
+
+  // Civic Event Category Filters
+  document.querySelectorAll('button[data-event-cat]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const cat = (e.currentTarget as HTMLElement).dataset.eventCat;
+      if (cat) {
+        state.selectedCivicEventCategory = cat;
+        renderApp();
+      }
+    });
+  });
+
+  // Meeting Notes Category Filters
+  document.querySelectorAll('button[data-meeting-cat]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const cat = (e.currentTarget as HTMLElement).dataset.meetingCat;
+      if (cat) {
+        state.selectedMeetingCategory = cat;
+        renderApp();
+      }
+    });
+  });
 
   // Body View Toggle (Front vs Back)
   document.querySelectorAll('button[data-body-view]').forEach(btn => {

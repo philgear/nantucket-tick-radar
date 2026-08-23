@@ -289,6 +289,18 @@ export class NantucketMapEngine {
       } else if (loc.category === 'pharmacy') {
         iconColor = '#a855f7';
         iconEmoji = '💊';
+      } else if (loc.category === 'town_hall') {
+        iconColor = '#f97316';
+        iconEmoji = '🏛️';
+      } else if (loc.category === 'library') {
+        iconColor = '#0284c7';
+        iconEmoji = '📚';
+      } else if (loc.category === 'senior_center') {
+        iconColor = '#84cc16';
+        iconEmoji = '👵';
+      } else if (loc.category === 'civic_center') {
+        iconColor = '#10b981';
+        iconEmoji = '🏛️';
       } else if (loc.riskRating === 'Extreme') {
         iconColor = '#ef4444';
         iconEmoji = '🚨';
