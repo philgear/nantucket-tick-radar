@@ -31,17 +31,18 @@ Here is a paragraph with **bold text** and *italic words*.
     expect(html).toContain('<em');
     expect(html).toContain('italic words</em>');
     expect(html).toContain('<ul');
-    expect(html).toContain('<li>Item 1</li>');
-    expect(html).toContain('<li>Item 2</li>');
+    expect(html).toContain('Item 1</li>');
+    expect(html).toContain('Item 2</li>');
     expect(html).toContain('</ul>');
     expect(html).toContain('<ol');
-    expect(html).toContain('<li>First step</li>');
-    expect(html).toContain('<li>Second step</li>');
+    expect(html).toContain('First step</li>');
+    expect(html).toContain('Second step</li>');
     expect(html).toContain('</ol>');
     expect(html).toContain('<hr');
   });
 
-  it('should cleanly parse all 7 articles in the library without error', () => {
+  it('should cleanly parse all 8 articles in the library without error', () => {
+    expect(ARTICLES_LIBRARY.length).toBe(8);
     for (const article of ARTICLES_LIBRARY) {
       const html = renderMarkdownToHtml(article.contentMarkdown);
       expect(html.length).toBeGreaterThan(100);

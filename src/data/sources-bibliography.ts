@@ -139,5 +139,57 @@ export const SOURCES_BIBLIOGRAPHY: ISourceCitation[] = [
     appFeatureGrounded: 'Field Guide #7: Oncology & Selective Cancer Apoptosis',
     grade6PlainEnglish: 'Tick spit has a special molecule that hunts down cancer cells and tells them to self-destruct, while leaving all your healthy normal body cells 100% safe!',
     grade6Metaphor: '🎯 "A smart missile that only destroys bad cancer cells."'
+  },
+  {
+    id: 'src-010',
+    category: 'Landscape Ecology',
+    title: 'Executive Order No. 618: Establishing Biodiversity Conservation Goals for 2030, 2040, and 2050',
+    authors: 'Healey, M. T., & Driscoll, K. (Commonwealth of Massachusetts)',
+    journalOrPublisher: 'Executive Department of the Commonwealth of Massachusetts',
+    year: 2023,
+    doiOrUrl: 'https://www.mass.gov/executive-orders/no-618-establishing-biodiversity-conservation-goals',
+    keyFindingSummary: 'Directs the Executive Office of Energy and Environmental Affairs to set permanent statewide biodiversity conservation targets across coastal heathlands, maritime shrublands, and rare sandplain grasslands.',
+    appFeatureGrounded: 'Field Guide #8 & Seven Generations 200-Year Ecological Continuum',
+    grade6PlainEnglish: 'Governor Maura Healey signed a special state law setting big goals for the years 2030, 2040, and 2050 to save Massachusetts nature and protect our rare island grasslands!',
+    grade6Metaphor: '🌱 "A 30-year promise from the state to protect our island\'s natural animals and plants."'
+  },
+  {
+    id: 'src-011',
+    category: 'Clinical Guidelines',
+    title: 'Massachusetts Department of Public Health (MDPH) & UMass Amherst Subsidized Tick Pathogen DNA Surveillance Protocol',
+    authors: 'Massachusetts DPH & Laboratory of Medical Zoology (LMZ)',
+    journalOrPublisher: 'Mass.gov Public Health Bureau of Infectious Disease and Laboratory Sciences',
+    year: 2024,
+    doiOrUrl: 'https://www.mass.gov/tick-borne-diseases',
+    keyFindingSummary: 'Provides state subsidies for resident tick PCR testing across 5 major pathogens (Borrelia, Babesia, Anaplasma, B. miyamotoi, Powassan), delivering results within 72 hours to inform local clinical care.',
+    appFeatureGrounded: 'NCH Hospital Walk-In Guide & 72h Triage Engine',
+    grade6PlainEnglish: 'Massachusetts pays for part of the cost so island families can mail in a tick and get a DNA test back in 3 days to see if the tick was carrying any germs!',
+    grade6Metaphor: '🔬 "A high-tech state detective lab that tests your tick for you."'
+  },
+  {
+    id: 'src-012',
+    category: 'Landscape Ecology',
+    title: 'ResilientMass Plan & Massachusetts Coastal Zone Management (CZM) Sandplain Habitat Restoration Guidelines',
+    authors: 'Massachusetts Executive Office of Energy and Environmental Affairs (EEA) & CZM',
+    journalOrPublisher: 'Commonwealth of Massachusetts ResilientMass Climate Adaptation Framework',
+    year: 2023,
+    doiOrUrl: 'https://www.mass.gov/service-details/resilientmass-plan',
+    keyFindingSummary: 'Coordinates state resilience grants to protect barrier beaches (Great Point/Coatue), prevent south shore bluff erosion, and support controlled burns that maintain tick-desiccating open grasslands.',
+    appFeatureGrounded: 'Island Weather & Desiccation Radar & Ranger Land Stewardship',
+    grade6PlainEnglish: 'State coastal scientists give grants to Nantucket to protect our beaches from storm erosion and help rangers use controlled fires to keep brush low and dry!',
+    grade6Metaphor: '🏖️ "A coastal defense shield keeping our beaches safe and sunny."'
+  },
+  {
+    id: 'src-013',
+    category: 'Clinical Guidelines',
+    title: 'The Kay Hagan TICK Act (Public Law 116-94): Federal Authorizations for Vector-Borne Disease Centers of Excellence and Local Surveillance',
+    authors: 'Warren, E., Collins, S., et al. (United States Senate)',
+    journalOrPublisher: '116th United States Congress / Centers for Disease Control and Prevention (CDC)',
+    year: 2019,
+    doiOrUrl: 'https://www.congress.gov/bill/116th-congress/senate-bill/1657',
+    keyFindingSummary: 'Authorizes $150M across 5 years to establish CDC Regional Centers of Excellence, build the National Vector-Borne Disease Strategy, and fund local municipal and island health department surveillance grants.',
+    appFeatureGrounded: 'Field Guide #8 & Island Public Health / Co-Infection Radar Infrastructure',
+    grade6PlainEnglish: 'Senator Elizabeth Warren helped pass a big $150 million federal law called the TICK Act to fund scientist labs, create new Lyme tests, and help towns protect people from tick bites!',
+    grade6Metaphor: '🏛️ "A national defense budget against tick diseases."'
   }
 ];

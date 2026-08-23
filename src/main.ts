@@ -2069,19 +2069,92 @@ function renderSevenGenerationsTab(): string {
         </div>
       </div>
 
-      <!-- 5 Tick-Safe Island Quests -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
-        ${ISLAND_ADVENTURE_QUESTS.map(q => `
-          <div class="glass-card" style="padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-              <span style="font-size: 2rem;">${q.icon}</span>
-              <span class="badge badge-emerald font-mono">${q.tickRisk}</span>
-            </div>
-            <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">${q.title}</h4>
-            <div style="font-size: 0.75rem; color: var(--accent-ocean); margin-bottom: 8px;">📍 ${q.location}</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">${q.whyItIsAwesome}</p>
+      <!-- ================================================================= -->
+      <!-- SEVEN GENERATIONS ECOLOGICAL CONTINUUM TIMELINE                   -->
+      <!-- ================================================================= -->
+      <div class="glass-panel" style="padding: 24px; border-left: 4px solid var(--accent-emerald);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <span class="badge badge-emerald font-mono">200-YEAR ECOLOGICAL ARC</span>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">
+              🌲 The Seven Generations Ecological Continuum
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-top: 4px;">
+              Tracing Nantucket's landscape transitions from open sheep commons to dense brush succession, and forward to sustainable community bio-stewardship.
+            </p>
           </div>
-        `).join('')}
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          ${SEVEN_GEN_TIMELINE.map((era, idx) => `
+            <div class="glass-card" style="padding: 18px; border-left: 4px solid ${idx === 2 ? '#34d399' : (idx > 2 ? '#38bdf8' : '#94a3b8')}; background: ${idx === 2 ? 'rgba(16, 185, 129, 0.08)' : 'var(--bg-surface)'};">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <strong style="font-size: 0.95rem; color: ${idx === 2 ? '#34d399' : 'var(--text-primary)'};">${era.eraLabel}</strong>
+                  ${idx === 2 ? '<span class="badge badge-emerald font-mono" style="font-size: 0.65rem;">WE ARE HERE</span>' : ''}
+                </div>
+                <span class="badge font-mono" style="background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); font-size: 0.72rem;">${era.timeframe}</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; font-size: 0.8rem; margin-top: 8px;">
+                <div style="background: rgba(7, 9, 14, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+                  <strong style="color: #38bdf8; display: block; margin-bottom: 2px;">🌿 Landscape & Ecology:</strong>
+                  <span style="color: var(--text-secondary); line-height: 1.45;">${era.ecologicalState}</span>
+                </div>
+                <div style="background: rgba(7, 9, 14, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+                  <strong style="color: #fb923c; display: block; margin-bottom: 2px;">🏡 Community Relationship:</strong>
+                  <span style="color: var(--text-secondary); line-height: 1.45;">${era.humanRelationship}</span>
+                </div>
+                <div style="background: rgba(7, 9, 14, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+                  <strong style="color: #34d399; display: block; margin-bottom: 2px;">🌟 Generational Legacy:</strong>
+                  <span style="color: var(--text-secondary); line-height: 1.45;">${era.legacyImpact}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- 5 TICK-SAFE ISLAND QUESTS                                         -->
+      <!-- ================================================================= -->
+      <div>
+        <div style="margin-bottom: 12px;">
+          <span class="badge badge-ocean font-mono">FEARLESS ISLAND JOY</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">
+            🏖️ Low-Risk & Zero-Risk Island Adventure Quests
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px;">
+            Safe, joyful outdoor adventures designed for grandmothers, grandchildren, and visitors to experience the natural beauty of Nantucket with near-zero tick exposure.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+          ${ISLAND_ADVENTURE_QUESTS.map(q => `
+            <div class="glass-card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <span style="font-size: 2rem;">${q.icon}</span>
+                  <span class="badge badge-emerald font-mono">${q.tickRisk}</span>
+                </div>
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${q.title}</h4>
+                <div style="font-size: 0.75rem; color: var(--accent-ocean); margin-bottom: 8px;">📍 ${q.location}</div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.45;">${q.whyItIsAwesome}</p>
+
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; font-size: 0.75rem; margin-bottom: 10px;">
+                  <strong style="color: #34d399;">🌟 Seven Generations Wisdom:</strong> ${q.sevenGenWisdom}
+                </div>
+
+                <div style="background: rgba(7, 9, 14, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; font-size: 0.75rem;">
+                  <strong style="color: #38bdf8; display: block; margin-bottom: 4px;">🎒 Adventure Tips:</strong>
+                  <ul style="padding-left: 16px; margin: 0; color: var(--text-secondary); line-height: 1.4;">
+                    ${q.adventureTips.map(t => `<li>${t}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
 
     </div>
