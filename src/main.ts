@@ -210,8 +210,8 @@ function renderApp() {
     <header class="glass-panel" style="padding: 16px 24px; margin-bottom: 16px;">
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);">
-            🌲
+          <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #f97316 0%, #a3e635 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);">
+            🦋
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
