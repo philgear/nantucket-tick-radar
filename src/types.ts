@@ -83,6 +83,10 @@ export interface ICoInfectionScore {
   riskLevel: 'Critically Elevated' | 'Elevated' | 'Moderate' | 'Low';
   clinicalFlag: string;
   recommendedAction: string;
+  pValueH0?: number;
+  nullHypothesisStatus?: 'REJECTED (Statistically Significant)' | 'RETAINED (Baseline Equivalence)';
+  priorProbabilityPercent?: number;
+  likelihoodRatio?: number;
 }
 
 export interface IDwellTimeAssessment {
