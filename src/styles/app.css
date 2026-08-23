@@ -83,12 +83,13 @@ h1, h2, h3, h4 {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-/* Navigation Tabs */
+/* Navigation Tabs & Interactive Controls (Fitts's Law 44px Hitbox) */
 .nav-tab {
-  padding: 10px 18px;
+  padding: 10px 16px;
+  min-height: 44px;
   border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
@@ -96,18 +97,64 @@ h1, h2, h3, h4 {
   background: transparent;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .nav-tab:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .nav-tab.active {
   background: rgba(14, 165, 233, 0.15);
   color: #38bdf8;
   border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
+}
+
+.btn-primary,
+.btn-secondary,
+button.btn-primary,
+button.btn-secondary {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-ocean);
+  color: #38bdf8;
 }
 
 /* Eisenhower Quadrant Styling */
@@ -558,13 +605,15 @@ input[type=range]::-webkit-slider-thumb:hover {
   color: var(--text-muted);
 }
 
-/* Ambient Audio Button */
+/* Ambient Audio Button (Fitts's Law 44px Minimum Hitbox) */
 .ambient-sound-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 22px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -572,6 +621,8 @@ input[type=range]::-webkit-slider-thumb:hover {
   background: rgba(14, 165, 233, 0.12);
   border: 1px solid rgba(56, 189, 248, 0.3);
   color: #38bdf8;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .ambient-sound-btn.playing {
@@ -585,6 +636,7 @@ input[type=range]::-webkit-slider-thumb:hover {
 .flip-card-container {
   perspective: 1200px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .flip-card-inner {
@@ -627,39 +679,49 @@ input[type=range]::-webkit-slider-thumb:hover {
   overflow-y: auto;
 }
 
-.flip-hint-badge {
+.flip-hint-badge,
+.toggle-flip-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.7rem;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.75rem;
   font-family: 'JetBrains Mono', monospace;
   background: rgba(14, 165, 233, 0.15);
   border: 1px solid rgba(56, 189, 248, 0.3);
   color: #38bdf8;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  user-select: none;
 }
 
-.flip-hint-badge:hover {
+.flip-hint-badge:hover,
+.toggle-flip-btn:hover {
   background: rgba(14, 165, 233, 0.3);
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 .reading-level-global-toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 22px;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .reading-level-global-toggle:hover {
@@ -671,6 +733,41 @@ input[type=range]::-webkit-slider-thumb:hover {
   background: rgba(16, 185, 129, 0.2);
   border-color: var(--accent-emerald);
   color: #34d399;
+}
+
+/* ==========================================================================
+   Fitts's Law Global Touch Target Architecture (WCAG 2.5.5 / 2.5.8 - 44px+ Hitbox)
+   ========================================================================== */
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.nav-tab,
+.btn-primary,
+.btn-secondary,
+.flip-hint-badge,
+.toggle-flip-btn,
+.reading-level-global-toggle,
+.ambient-sound-btn,
+.body-zone-btn,
+.read-article-btn,
+.route-select-card,
+.ferry-kit-item {
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure link hitboxes meet the 44px touch target guideline */
+a.badge,
+button.badge,
+header a,
+footer a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
 }
 
 
