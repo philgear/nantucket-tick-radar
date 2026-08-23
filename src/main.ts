@@ -2710,8 +2710,8 @@ function attachEventListeners() {
   document.querySelectorAll('.flip-card-container').forEach(card => {
     card.addEventListener('dblclick', (e) => {
       const target = e.target as HTMLElement;
-      // Don't trigger if clicked on an interactive link, button, or form control
-      if (target.closest('a, button, input, select, textarea')) return;
+      // Do not flip if clicked on an external link or the full-article modal opener
+      if (target.closest('a, input, select, textarea, .read-article-btn')) return;
       const cardId = (card as HTMLElement).dataset.cardId;
       if (cardId) {
         state.toggleCardFlip(cardId);
