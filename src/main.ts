@@ -59,6 +59,8 @@ class AppState {
       SOURCES_BIBLIOGRAPHY.forEach(s => this.flippedCardIds.add(s.id));
       ARTICLES_LIBRARY.forEach(a => this.flippedCardIds.add(a.id));
       NANTUCKET_PUBLIC_MEETING_NOTES.forEach(m => this.flippedCardIds.add(m.id));
+      EISENHOWER_ACTIONS.forEach(e => this.flippedCardIds.add(e.id));
+      ISLAND_ADVENTURE_QUESTS.forEach(q => this.flippedCardIds.add(q.id));
     } else {
       this.flippedCardIds.clear();
     }
@@ -2013,12 +2015,52 @@ function renderEisenhowerTab(): string {
 }
 
 function renderActionCard(action: typeof EISENHOWER_ACTIONS[0]): string {
+  const isFlipped = state.isCardFlipped(action.id);
   return `
-    <div style="background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px;">
-      <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${action.title}</h4>
-      <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">${action.summary}</p>
-      <div style="font-size: 0.75rem; color: var(--accent-ocean); background: rgba(14, 165, 233, 0.08); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
-        <strong>Rationale:</strong> ${action.clinicalRationale}
+    <div class="flip-card-container ${isFlipped ? 'flipped' : ''}" data-card-id="${action.id}" title="Double-click card (or tap flip button) to toggle 6th-Grade Mode">
+      <div class="flip-card-inner">
+        <!-- FRONT: Clinical & Scientific Action -->
+        <div class="flip-card-front" style="background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary);">${action.title}</h4>
+              <button class="flip-hint-badge toggle-flip-btn" data-flip-target="${action.id}" title="Double-click anywhere to flip">
+                🔄 6th Grade
+              </button>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">${action.summary}</p>
+            <div style="font-size: 0.75rem; color: var(--accent-ocean); background: rgba(14, 165, 233, 0.08); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+              <strong>Rationale:</strong> ${action.clinicalRationale}
+            </div>
+            ${action.actionSteps ? `
+              <ul style="padding-left: 16px; font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                ${action.actionSteps.map(s => `<li>${s}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- BACK: 6th-Grade Detective / Family Translation -->
+        <div class="flip-card-back" style="padding: 14px; border-radius: 10px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="badge badge-emerald font-mono">🎒 6TH GRADE GUIDE</span>
+              <button class="flip-hint-badge toggle-flip-btn" data-flip-target="${action.id}" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399;">
+                🔬 Scientific
+              </button>
+            </div>
+            <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
+              ${action.title}
+            </h4>
+            <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; padding: 10px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.45; margin-bottom: 8px;">
+              <strong style="color: #34d399; display: block; margin-bottom: 2px;">💡 Simple Summary:</strong>
+              ${action.summary}
+            </div>
+            <div style="font-size: 0.75rem; color: #fbbf24; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 6px; padding: 8px;">
+              <strong>🎯 Rule to Remember:</strong> ${action.clinicalRationale.split('.')[0]}.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -2779,11 +2821,44 @@ function attachEventListeners() {
     });
   }
 
-  // 3D Double-Click Flip Handlers & Dedicated Flip Buttons
+  // Bulletproof Card Flip Handlers (Smart Click + Native DblClick + Direct Buttons)
+  let lastClickTime = 0;
+  let lastCardClicked = '';
+
   document.querySelectorAll('.flip-card-container').forEach(card => {
+    // Smart click listener with 450ms double-click tolerance for trackpads & mice
+    card.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, input, select, textarea, .read-article-btn')) return;
+      
+      const cardId = (card as HTMLElement).dataset.cardId;
+      if (!cardId) return;
+
+      // 1. Direct single-click on any flip button or badge
+      if (target.closest('.toggle-flip-btn, .flip-hint-badge, .flip-header-bar')) {
+        e.preventDefault();
+        e.stopPropagation();
+        state.toggleCardFlip(cardId);
+        renderApp();
+        return;
+      }
+
+      // 2. Trackpad / Mouse rapid double-click tolerance (within 450ms)
+      const now = Date.now();
+      if (lastCardClicked === cardId && (now - lastClickTime) < 450) {
+        state.toggleCardFlip(cardId);
+        renderApp();
+        lastClickTime = 0;
+        lastCardClicked = '';
+      } else {
+        lastClickTime = now;
+        lastCardClicked = cardId;
+      }
+    });
+
+    // 3. Native browser dblclick event
     card.addEventListener('dblclick', (e) => {
       const target = e.target as HTMLElement;
-      // Do not flip if clicked on an external link or the full-article modal opener
       if (target.closest('a, input, select, textarea, .read-article-btn')) return;
       const cardId = (card as HTMLElement).dataset.cardId;
       if (cardId) {
