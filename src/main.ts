@@ -20,6 +20,7 @@ import { SOURCES_BIBLIOGRAPHY, ISourceCitation } from './data/sources-bibliograp
 import { COASTAL_BUOY_STATIONS, INoaaBuoyStation } from './data/coastal-buoy-data.js';
 import { NANTUCKET_PUBLIC_MEETING_NOTES, IPublicMeetingNote } from './data/public-meeting-notes.js';
 import { UPCOMING_ISLAND_CIVIC_EVENTS, IIslandCivicEvent } from './data/island-civic-events.js';
+import { renderMarkdownToHtml } from './engine/markdown-renderer.js';
 import { TickSpecies, EisenhowerPhase, AttachmentDwellTier } from './types.js';
 
 // Application State
@@ -1807,8 +1808,8 @@ function renderArticlesTab(): string {
             </ul>
           </div>
 
-          <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; white-space: pre-wrap;">
-            ${activeArticle.contentMarkdown}
+          <div class="article-markdown-body" style="margin-top: 16px;">
+            ${renderMarkdownToHtml(activeArticle.contentMarkdown)}
           </div>
         </div>
       ` : ''}
