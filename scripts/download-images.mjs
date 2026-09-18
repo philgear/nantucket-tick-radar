@@ -47,7 +47,7 @@ async function downloadFile(url, dest) {
     const file = fs.createWriteStream(dest);
     https.get(url, {
       headers: {
-        'User-Agent': 'PocketGullBot/1.0 (https://pocketgull.org; contact@pocketgull.org)'
+        'User-Agent': 'PocketGullBot/1.0 (https://pocketgull.app; contact@pocketgull.app)'
       }
     }, (response) => {
       if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
